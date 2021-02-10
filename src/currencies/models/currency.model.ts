@@ -1,5 +1,7 @@
 import { AutoMap } from '@automapper/classes';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Expose } from 'class-transformer';
+import { Allow } from 'class-validator';
 import { Document } from 'mongoose';
 import { ColumnSizes } from 'src/shared/constants';
 import { BaseModel } from 'src/shared/models';
@@ -26,6 +28,7 @@ export class Currency extends BaseModel {
 		maxlength: ColumnSizes.Length32,
 	})
 	@AutoMap()
+	@Expose()
 	name: string;
 
 	@Prop({
@@ -35,6 +38,7 @@ export class Currency extends BaseModel {
 		maxlength: ColumnSizes.Length4,
 	})
 	@AutoMap()
+	@Expose()
 	code: string;
 
 	@Prop({
@@ -44,6 +48,7 @@ export class Currency extends BaseModel {
 		maxlength: ColumnSizes.Length2,
 	})
 	@AutoMap()
+	@Expose()
 	symbol: string;
 }
 

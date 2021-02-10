@@ -7,7 +7,8 @@ import { CurrenciesModule } from './currencies/currencies.module';
 
 @Module({
 	imports: [
-		MongooseModule.forRoot('mongodb://localhost:27017/nestjs-typegoose', {
+		MongooseModule.forRoot('mongodb://localhost:27017/new-arch', {
+			useFindAndModify: false,
 			useNewUrlParser: true,
 			useUnifiedTopology: true,
 		}),

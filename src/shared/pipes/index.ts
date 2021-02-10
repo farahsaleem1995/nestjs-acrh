@@ -1,3 +1,3 @@
 import { from } from 'rxjs';
 
-export * from './whitelist-validation.pipe';
+export * from './input-validation.pipe';

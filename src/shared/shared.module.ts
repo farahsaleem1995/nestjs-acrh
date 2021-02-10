@@ -1,14 +1,7 @@
 import { Module } from '@nestjs/common';
-import { WhitelistValidationPipe } from './pipes';
+import { InputValidationPipe } from './pipes';
 
 @Module({
-	providers: [
-		{
-			useFactory: (cls: any) => {
-				return new WhitelistValidationPipe(cls);
-			},
-			provide: WhitelistValidationPipe,
-		},
-	],
+	providers: [InputValidationPipe],
 })
 export class SharedModule {}

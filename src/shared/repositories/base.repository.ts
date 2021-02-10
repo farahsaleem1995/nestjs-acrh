@@ -1,10 +1,15 @@
-import { InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { plainToClass, ClassConstructor, plainToClassFromExist } from 'class-transformer';
 import { MongoError } from 'mongodb';
 import { Types, Model, UpdateQuery, FilterQuery } from 'mongoose';
 import { BaseDocument, BaseModel } from '../models';
 
+@Injectable()
 export abstract class BaseRepository<TModel extends BaseModel> {
-	protected constructor(protected readonly model: Model<BaseDocument<TModel>>) {}
+	protected constructor(
+		protected readonly model: Model<BaseDocument<TModel>>,
+		protected readonly modelType: ClassConstructor<TModel>,
+	) {}
 
 	protected static throwMongoError(err: MongoError): void {
 		throw new InternalServerErrorException(err, err.errmsg);
@@ -18,13 +23,23 @@ export abstract class BaseRepository<TModel extends BaseModel> {
 		}
 	}
 
+	protected toClassObject(obj: any): TModel {
+		return plainToClassFromExist(new this.modelType(), obj);
+	}
+
+	protected toClassArray(obj: any[]): TModel[] {
+		return plainToClass(this.modelType, obj);
+	}
+
 	createModel(doc?: Partial<TModel>): BaseDocument<TModel> {
 		return new this.model(doc);
 	}
 
 	async findAll(filter: FilterQuery<BaseDocument<TModel>>): Promise<TModel[]> {
 		try {
-			return await this.model.find(filter).exec();
+			const model = await this.model.find(filter).exec();
+
+			return this.toClassArray(model);
 		} catch (e) {
 			BaseRepository.throwMongoError(e);
 		}
@@ -32,7 +47,9 @@ export abstract class BaseRepository<TModel extends BaseModel> {
 
 	async findOne(filter: FilterQuery<BaseDocument<TModel>>): Promise<TModel> {
 		try {
-			return await this.model.findOne(filter).exec();
+			const model = await this.model.findOne(filter).exec();
+
+			return this.toClassObject(model.toObject());
 		} catch (e) {
 			BaseRepository.throwMongoError(e);
 		}
@@ -40,7 +57,9 @@ export abstract class BaseRepository<TModel extends BaseModel> {
 
 	async findById(id: string): Promise<TModel> {
 		try {
-			return await this.model.findById(BaseRepository.toObjectId(id)).exec();
+			const model = await this.model.findById(BaseRepository.toObjectId(id)).exec();
+
+			return this.toClassObject(model.toObject());
 		} catch (e) {
 			BaseRepository.throwMongoError(e);
 		}
@@ -50,7 +69,9 @@ export abstract class BaseRepository<TModel extends BaseModel> {
 		const doc = this.createModel(item);
 
 		try {
-			return await doc.save();
+			const model = await doc.save();
+
+			return this.toClassObject(model.toObject());
 		} catch (e) {
 			BaseRepository.throwMongoError(e);
 		}
@@ -58,9 +79,11 @@ export abstract class BaseRepository<TModel extends BaseModel> {
 
 	async update(id: string, item: UpdateQuery<BaseDocument<TModel>>): Promise<TModel> {
 		try {
-			return await this.model
+			const model = await this.model
 				.findByIdAndUpdate(BaseRepository.toObjectId(id), item, { new: true })
 				.exec();
+
+			return this.toClassObject(model.toObject());
 		} catch (e) {
 			BaseRepository.throwMongoError(e);
 		}
@@ -68,7 +91,9 @@ export abstract class BaseRepository<TModel extends BaseModel> {
 
 	async delete(id: string): Promise<TModel> {
 		try {
-			return await this.model.findByIdAndDelete(BaseRepository.toObjectId(id)).exec();
+			const model = await this.model.findByIdAndDelete(BaseRepository.toObjectId(id)).exec();
+
+			return this.toClassObject(model.toObject());
 		} catch (e) {
 			BaseRepository.throwMongoError(e);
 		}

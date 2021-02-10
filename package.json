@@ -26,6 +26,7 @@
 		"@automapper/nestjs": "^1.1.1",
 		"@nestjs/common": "^7.6.7",
 		"@nestjs/core": "^7.6.7",
+		"@nestjs/mapped-types": "^0.3.0",
 		"@nestjs/mongoose": "^7.2.2",
 		"@nestjs/platform-express": "^7.6.7",
 		"class-transformer": "^0.3.2",

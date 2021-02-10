@@ -1,9 +1,7 @@
-import { mapFrom } from '@automapper/core';
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/types';
 import { Injectable } from '@nestjs/common';
-import { CreateCurrencyDto } from '../dtos';
-import { CurrencyDto } from '../dtos/currency.dto';
+import { CurrencyDto, CreateCurrencyDto, UpdateCurrencyDto } from '../dtos';
 import { Currency } from '../models';
 
 @Injectable()
@@ -14,15 +12,7 @@ export class CurrencyProfile extends AutomapperProfile {
 
 	mapProfile() {
 		return (mapper: Mapper) => {
-			mapper.createMap(CreateCurrencyDto, Currency);
-
-			mapper.createMap(Currency, CurrencyDto).forMember(
-				(dest) => dest.name,
-				mapFrom((src) => {
-					console.log(src);
-					return src.name;
-				}),
-			);
+			mapper.createMap(Currency, CurrencyDto);
 		};
 	}
 }

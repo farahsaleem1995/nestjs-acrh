@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Inject, Param, Post } from '@nestjs/common';
-import { CreateCurrencyDto } from './dtos';
-import { CurrencyDto } from './dtos/currency.dto';
+import { Body, Controller, Get, Inject, Param, Post, Put } from '@nestjs/common';
+import { InputValidationPipe } from 'src/shared/pipes';
+import { CurrencyDto, CreateCurrencyDto, UpdateCurrencyDto } from './dtos';
 import { CurrenciesService } from './services/currencies.service';
 
 @Controller('currencies')
@@ -20,5 +20,13 @@ export class CurrenciesController {
 	@Post()
 	async create(@Body() createDto: CreateCurrencyDto): Promise<CurrencyDto> {
 		return this.currenciesService.create(createDto);
+	}
+
+	@Put(':id')
+	async update(
+		@Param('id') id: string,
+		@Body(new InputValidationPipe(UpdateCurrencyDto)) updateDto: UpdateCurrencyDto,
+	): Promise<CurrencyDto> {
+		return await this.currenciesService.update(id, updateDto);
 	}
 }

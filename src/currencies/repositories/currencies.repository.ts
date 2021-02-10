@@ -7,10 +7,6 @@ export class CurrenciesRepository extends BaseRepository<Currency> {
 	constructor(
 		@InjectModel(Currency.name) private readonly currencyModel: Model<CurrencyDocument>,
 	) {
-		super(currencyModel);
-	}
-
-	async findAlls(): Promise<Currency[]> {
-		return await this.currencyModel.find().exec();
+		super(currencyModel, Currency);
 	}
 }

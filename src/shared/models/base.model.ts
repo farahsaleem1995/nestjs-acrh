@@ -1,19 +1,23 @@
 import { AutoMap } from '@automapper/classes';
 import { Prop } from '@nestjs/mongoose';
+import { Expose } from 'class-transformer';
 import { Document } from 'mongoose';
 
 export type BaseDocument<TModel> = TModel & Document;
 
 export abstract class BaseModel {
 	@AutoMap()
+	@Expose()
 	id?: string;
 
 	@Prop()
 	@AutoMap()
+	@Expose()
 	createdAt?: Date;
 
 	@Prop()
 	@AutoMap()
+	@Expose()
 	updatedAt?: Date;
 }
 
