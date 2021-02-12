@@ -7,8 +7,11 @@ import { BaseDocument, BaseModel } from '../models';
 @Injectable({ scope: Scope.TRANSIENT })
 export class BaseRepository<TModel extends BaseModel> {
 	protected readonly modelType: ClassConstructor<TModel>;
+	protected model: Model<BaseDocument<TModel>>;
 
-	constructor(protected model: Model<BaseDocument<TModel>>) {}
+	setModel(model: Model<BaseDocument<TModel>>): void {
+		this.model = model;
+	}
 
 	protected static throwMongoError(err: MongoError): void {
 		throw new InternalServerErrorException(err, err.errmsg);

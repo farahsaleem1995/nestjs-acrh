@@ -12,9 +12,10 @@ export const repositoryProvider = <TModel extends BaseModel>(
 
 	return {
 		provide: `${token}Repository`,
-		useFactory: (model: Model<BaseDocument<TModel>>) => {
-			return new BaseRepository<TModel>(model);
+		useFactory: (repository: BaseRepository<TModel>, model: Model<BaseDocument<TModel>>) => {
+			repository.setModel(model);
+			return repository;
 		},
-		inject: [getModelToken(token)],
+		inject: [BaseRepository, getModelToken(token)],
 	};
 };
