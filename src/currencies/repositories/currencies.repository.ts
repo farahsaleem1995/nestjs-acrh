@@ -7,6 +7,6 @@ export class CurrenciesRepository extends BaseRepository<Currency> {
 	constructor(
 		@InjectModel(Currency.name) private readonly currencyModel: Model<CurrencyDocument>,
 	) {
-		super(currencyModel, Currency);
+		super(currencyModel);
 	}
 }

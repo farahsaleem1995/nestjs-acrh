@@ -1,15 +1,14 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { plainToClass, ClassConstructor, plainToClassFromExist } from 'class-transformer';
+import { Injectable, InternalServerErrorException, Scope } from '@nestjs/common';
+import { plainToClass, ClassConstructor } from 'class-transformer';
 import { MongoError } from 'mongodb';
 import { Types, Model, UpdateQuery, FilterQuery } from 'mongoose';
 import { BaseDocument, BaseModel } from '../models';
 
-@Injectable()
-export abstract class BaseRepository<TModel extends BaseModel> {
-	protected constructor(
-		protected readonly model: Model<BaseDocument<TModel>>,
-		protected readonly modelType: ClassConstructor<TModel>,
-	) {}
+@Injectable({ scope: Scope.TRANSIENT })
+export class BaseRepository<TModel extends BaseModel> {
+	protected readonly modelType: ClassConstructor<TModel>;
+
+	constructor(protected model: Model<BaseDocument<TModel>>) {}
 
 	protected static throwMongoError(err: MongoError): void {
 		throw new InternalServerErrorException(err, err.errmsg);
@@ -24,7 +23,7 @@ export abstract class BaseRepository<TModel extends BaseModel> {
 	}
 
 	protected toClassObject(obj: any): TModel {
-		return plainToClassFromExist(new this.modelType(), obj);
+		return plainToClass(this.modelType, obj);
 	}
 
 	protected toClassArray(obj: any[]): TModel[] {

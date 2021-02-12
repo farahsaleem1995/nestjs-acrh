@@ -1,16 +1,17 @@
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/types';
 import { Inject, Injectable } from '@nestjs/common';
+import { BaseRepository } from 'src/shared/repositories';
 import { CreateCurrencyDto, UpdateCurrencyDto } from '../dtos';
 import { CurrencyDto } from '../dtos/currency.dto';
 import { Currency } from '../models';
-import { CurrenciesRepository } from '../repositories';
 
 @Injectable()
 export class CurrenciesService {
 	constructor(
 		@InjectMapper() private mapper: Mapper,
-		@Inject(CurrenciesRepository) private readonly currenciesRepository: CurrenciesRepository,
+		@Inject('CurrencyRepository')
+		private readonly currenciesRepository: BaseRepository<Currency>,
 	) {}
 
 	async getAll(): Promise<CurrencyDto[]> {
