@@ -16,7 +16,6 @@ import { CurrenciesModule } from './currencies/currencies.module';
 			options: [{ name: 'app', pluginInitializer: classes }],
 			singular: true,
 		}),
-		SharedModule,
 		CurrenciesModule,
 	],
 	controllers: [],

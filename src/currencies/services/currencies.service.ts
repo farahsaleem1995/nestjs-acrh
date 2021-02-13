@@ -1,6 +1,7 @@
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/types';
 import { Inject, Injectable } from '@nestjs/common';
+import { InjectRepository } from 'src/shared/decorators';
 import { BaseRepository } from 'src/shared/repositories';
 import { CreateCurrencyDto, UpdateCurrencyDto } from '../dtos';
 import { CurrencyDto } from '../dtos/currency.dto';
@@ -10,7 +11,7 @@ import { Currency } from '../models';
 export class CurrenciesService {
 	constructor(
 		@InjectMapper() private mapper: Mapper,
-		@Inject('CurrencyRepository')
+		@InjectRepository(Currency)
 		private readonly currenciesRepository: BaseRepository<Currency>,
 	) {}
 
