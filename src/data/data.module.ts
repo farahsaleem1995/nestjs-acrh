@@ -6,8 +6,21 @@ import { DataFeatue } from './types';
 import { createRepositoryProviders } from './utils';
 
 @Module({})
-export class SharedModule {
+export class DataModule {
 	private static modelDefinitions: ModelDefinition[] = [];
+
+	static forRoot(): DynamicModule {
+		return {
+			module: DataModule,
+			imports: [
+				MongooseModule.forRoot('mongodb://localhost:27017/new-arch', {
+					useFindAndModify: false,
+					useNewUrlParser: true,
+					useUnifiedTopology: true,
+				}),
+			],
+		};
+	}
 
 	static forFeature(features: DataFeatue[]): DynamicModule {
 		this.modelDefinitions = features.map(
@@ -24,7 +37,7 @@ export class SharedModule {
 		const repositoryProviders = createRepositoryProviders();
 
 		return {
-			module: SharedModule,
+			module: DataModule,
 			imports: [MongooseModule.forFeature(this.modelDefinitions)],
 			providers: [InputValidationPipe, BaseRepository, ...repositoryProviders],
 			exports: [InputValidationPipe, BaseRepository, ...repositoryProviders],

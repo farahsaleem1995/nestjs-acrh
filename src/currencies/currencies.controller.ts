@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Inject, Param, Post, Put } from '@nestjs/common';
-import { InputValidationPipe } from 'src/shared/pipes';
+import { InputValidationPipe } from 'src/data/pipes';
 import { CurrencyDto, CreateCurrencyDto, UpdateCurrencyDto } from './dtos';
 import { CurrenciesService } from './services/currencies.service';
 

@@ -1,12 +1,8 @@
 import { AutoMap } from '@automapper/classes';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Expose } from 'class-transformer';
-import { Allow } from 'class-validator';
-import { Document } from 'mongoose';
-import { ColumnSizes } from 'src/shared/constants';
-import { BaseModel } from 'src/shared/models';
-
-export type CurrencyDocument = Currency & Document;
+import { ColumnSizes } from 'src/data/constants';
+import { BaseModel } from 'src/data/models';
 
 @Schema({
 	timestamps: true,

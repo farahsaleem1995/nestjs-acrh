@@ -1,7 +1,7 @@
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/types';
 import { Injectable } from '@nestjs/common';
-import { CurrencyDto, CreateCurrencyDto, UpdateCurrencyDto } from '../dtos';
+import { CurrencyDto } from '../dtos';
 import { Currency } from '../models';
 
 @Injectable()

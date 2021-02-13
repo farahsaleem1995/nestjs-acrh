@@ -2,8 +2,9 @@ import { Provider } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { repositoryModelTokens } from '../decorators';
-import { BaseDocument, BaseModel } from '../models';
-import { BaseRepository } from '../repositories/base.repository';
+import { BaseModel } from '../models';
+import { BaseRepository } from '../repositories';
+import { BaseDocument } from '../types';
 
 function repositoryFactory<TModel extends BaseModel>(
 	repository: BaseRepository<TModel>,

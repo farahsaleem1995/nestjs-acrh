@@ -1,17 +1,12 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
 import { AutomapperModule } from '@automapper/nestjs';
 import { classes } from '@automapper/classes';
-import { SharedModule } from './shared/shared.module';
 import { CurrenciesModule } from './currencies/currencies.module';
+import { DataModule } from './data/data.module';
 
 @Module({
 	imports: [
-		MongooseModule.forRoot('mongodb://localhost:27017/new-arch', {
-			useFindAndModify: false,
-			useNewUrlParser: true,
-			useUnifiedTopology: true,
-		}),
+		DataModule.forRoot(),
 		AutomapperModule.forRoot({
 			options: [{ name: 'app', pluginInitializer: classes }],
 			singular: true,
