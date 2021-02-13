@@ -25,11 +25,13 @@ export class DataModule {
 	static forFeature(features: DataFeatue[]): DynamicModule {
 		this.modelDefinitions = features.map(
 			(feature): ModelDefinition => {
-				const { model, schema } = feature;
+				const { model, schema, collection, discriminators } = feature;
 
 				return {
 					name: model.name,
-					schema: schema,
+					schema,
+					collection,
+					discriminators,
 				};
 			},
 		);
