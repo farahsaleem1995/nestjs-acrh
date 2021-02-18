@@ -1,10 +1,11 @@
 import { AutoMap } from '@automapper/classes';
 import { Prop } from '@nestjs/mongoose';
-import { Expose } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import { Document } from 'mongoose';
 
 export type BaseDocument<TModel> = TModel & Document;
 
+@Exclude()
 export abstract class BaseModel {
 	@AutoMap()
 	@Expose()

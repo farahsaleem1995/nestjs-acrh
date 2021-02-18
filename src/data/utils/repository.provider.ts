@@ -1,13 +1,13 @@
 import { Provider } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
+import { ClassConstructor } from 'class-transformer';
 import { Model } from 'mongoose';
-import { repositoryModelTokens } from '../decorators';
 import { BaseModel } from '../models';
 import { BaseRepository } from '../repositories';
-import { BaseDocument } from '../types';
+import { BaseDocument, ModelRefs } from '../types';
 
 function repositoryFactory<TModel extends BaseModel>(
-	repository: BaseRepository<TModel>,
+	repository: BaseRepository<TModel, ModelRefs<BaseModel>>,
 	model: Model<BaseDocument<TModel>>,
 ) {
 	repository.setModel(model);
@@ -17,16 +17,23 @@ function repositoryFactory<TModel extends BaseModel>(
 
 function createRepositoryProvider<TModel extends BaseModel>(
 	token: string,
-): Provider<BaseRepository<TModel>> {
+): Provider<BaseRepository<TModel, ModelRefs<BaseModel>>> {
 	return {
 		provide: `${token}Repository`,
-		useFactory: (repository: BaseRepository<TModel>, model: Model<BaseDocument<TModel>>) => {
+		useFactory: (
+			repository: BaseRepository<TModel, ModelRefs<BaseModel>>,
+			model: Model<BaseDocument<TModel>>,
+		) => {
 			return repositoryFactory<TModel>(repository, model);
 		},
 		inject: [BaseRepository, getModelToken(token)],
 	};
 }
 
-export function createRepositoryProviders(): Array<Provider<BaseRepository<BaseModel>>> {
-	return repositoryModelTokens.map((token) => createRepositoryProvider(token));
+export function createRepositoryProviders(
+	models: ClassConstructor<BaseModel>[],
+): Array<Provider<BaseRepository<BaseModel, ModelRefs<BaseModel>>>> {
+	return models.map((model) => {
+		return createRepositoryProvider(model.name);
+	});
 }

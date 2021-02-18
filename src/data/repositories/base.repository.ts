@@ -1,12 +1,12 @@
 import { Injectable, InternalServerErrorException, Scope } from '@nestjs/common';
 import { plainToClass, ClassConstructor } from 'class-transformer';
 import { MongoError } from 'mongodb';
-import { Types, Model, UpdateQuery, FilterQuery } from 'mongoose';
+import { Types, Model, UpdateQuery, FilterQuery, Query } from 'mongoose';
 import { BaseModel } from '../models';
-import { BaseDocument } from '../types';
+import { BaseDocument, ModelRefs } from '../types';
 
 @Injectable({ scope: Scope.TRANSIENT })
-export class BaseRepository<TModel extends BaseModel> {
+export class BaseRepository<TModel extends BaseModel, TRefs extends ModelRefs<TModel>> {
 	private _modelType: ClassConstructor<TModel>;
 	private _model: Model<BaseDocument<TModel>>;
 
@@ -14,33 +14,19 @@ export class BaseRepository<TModel extends BaseModel> {
 		this._model = model;
 	}
 
-	private static _throwMongoError(err: MongoError): void {
-		throw new InternalServerErrorException(err, err.errmsg);
-	}
-
-	private static _toObjectId(id: string): Types.ObjectId {
-		try {
-			return Types.ObjectId(id);
-		} catch (e) {
-			this._throwMongoError(e);
-		}
-	}
-
-	private _toClassObject(obj: any): TModel {
-		return plainToClass(this._modelType, obj);
-	}
-
-	private _toClassArray(obj: any[]): TModel[] {
-		return plainToClass(this._modelType, obj);
-	}
-
 	createModel(doc?: Partial<TModel>): BaseDocument<TModel> {
 		return new this._model(doc);
 	}
 
-	async findAll(filter: FilterQuery<BaseDocument<TModel>>): Promise<TModel[]> {
+	async findAll(filter: FilterQuery<BaseDocument<TModel>>, refs?: TRefs): Promise<TModel[]> {
 		try {
-			const model = await this._model.find(filter).exec();
+			let query = this._model.find(filter);
+
+			if (refs) {
+				query = this._populateRefs(query, refs);
+			}
+
+			const model = await query.exec();
 
 			return this._toClassArray(model);
 		} catch (e) {
@@ -68,7 +54,7 @@ export class BaseRepository<TModel extends BaseModel> {
 		}
 	}
 
-	async create(item: TModel): Promise<TModel> {
+	async create(item: Partial<TModel>): Promise<TModel> {
 		const doc = this.createModel(item);
 
 		try {
@@ -102,5 +88,38 @@ export class BaseRepository<TModel extends BaseModel> {
 		} catch (e) {
 			BaseRepository._throwMongoError(e);
 		}
+	}
+
+	private _populateRefs<TResultType extends BaseDocument<TModel> | BaseDocument<TModel>[]>(
+		query: Query<TResultType, BaseDocument<TModel>>,
+		refs: ModelRefs<TModel>,
+	): Query<TResultType, BaseDocument<TModel>> {
+		Object.entries(refs).forEach(([refKey, refValue]) => {
+			if (!!refValue) {
+				query = query.populate(refKey.toString());
+			}
+		});
+
+		return query;
+	}
+
+	private static _throwMongoError(err: MongoError): void {
+		throw new InternalServerErrorException(err, err.errmsg);
+	}
+
+	private static _toObjectId(id: string): Types.ObjectId {
+		try {
+			return Types.ObjectId(id);
+		} catch (e) {
+			this._throwMongoError(e);
+		}
+	}
+
+	private _toClassObject(obj: any): TModel {
+		return plainToClass(this._modelType, obj, { enableCircularCheck: true });
+	}
+
+	private _toClassArray(obj: any[]): TModel[] {
+		return plainToClass(this._modelType, obj, { enableCircularCheck: true });
 	}
 }

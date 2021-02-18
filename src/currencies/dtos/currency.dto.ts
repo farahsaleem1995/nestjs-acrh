@@ -1,9 +1,7 @@
 import { AutoMap } from '@automapper/classes';
+import { BaseDto } from 'src/data/dtos';
 
-export class CurrencyDto {
-	@AutoMap()
-	id: string;
-
+export class CurrencyDto extends BaseDto {
 	@AutoMap()
 	name: string;
 
@@ -12,10 +10,4 @@ export class CurrencyDto {
 
 	@AutoMap()
 	symbol: string;
-
-	@AutoMap()
-	createdAt: string;
-
-	@AutoMap()
-	updatedAt: string;
 }

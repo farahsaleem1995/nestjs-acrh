@@ -1,9 +1,10 @@
 import { AutoMap } from '@automapper/classes';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Expose } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import { ColumnSizes } from 'src/data/constants';
 import { BaseModel } from 'src/data/models';
 
+@Exclude()
 @Schema({
 	timestamps: true,
 	id: true,

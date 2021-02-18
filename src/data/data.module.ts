@@ -1,46 +1,23 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { ModelDefinition, MongooseModule } from '@nestjs/mongoose';
+import { ModelDefinition } from '@nestjs/mongoose';
+import { ClassConstructor } from 'class-transformer';
+import { Currency } from 'src/currencies/models';
+import { BaseModel } from './models';
 import { InputValidationPipe } from './pipes';
 import { BaseRepository } from './repositories';
-import { DataFeatue } from './types';
 import { createRepositoryProviders } from './utils';
 
 @Module({})
 export class DataModule {
-	private static modelDefinitions: ModelDefinition[] = [];
-
-	static forRoot(): DynamicModule {
-		return {
-			module: DataModule,
-			imports: [
-				MongooseModule.forRoot('mongodb://localhost:27017/new-arch', {
-					useFindAndModify: false,
-					useNewUrlParser: true,
-					useUnifiedTopology: true,
-				}),
-			],
-		};
-	}
-
-	static forFeature(features: DataFeatue[]): DynamicModule {
-		this.modelDefinitions = features.map(
-			(feature): ModelDefinition => {
-				const { model, schema, collection, discriminators } = feature;
-
-				return {
-					name: model.name,
-					schema,
-					collection,
-					discriminators,
-				};
-			},
-		);
-
-		const repositoryProviders = createRepositoryProviders();
+	static forFeature(
+		models: ClassConstructor<BaseModel>[],
+		mongooseFeatureModule: DynamicModule,
+	): DynamicModule {
+		const repositoryProviders = createRepositoryProviders(models);
 
 		return {
 			module: DataModule,
-			imports: [MongooseModule.forFeature(this.modelDefinitions)],
+			imports: [mongooseFeatureModule],
 			providers: [InputValidationPipe, BaseRepository, ...repositoryProviders],
 			exports: [InputValidationPipe, BaseRepository, ...repositoryProviders],
 		};
