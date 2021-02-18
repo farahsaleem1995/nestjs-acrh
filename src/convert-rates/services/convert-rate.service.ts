@@ -1,7 +1,7 @@
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/types';
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { CurrenciesService } from 'src/currencies/services/currencies.service';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { Currency } from 'src/currencies/models';
 import { InjectRepository } from 'src/data/decorators';
 import { BaseRepository } from 'src/data/repositories';
 import { ModelRefs } from 'src/data/types';
@@ -15,8 +15,8 @@ export class ConvertRatesService {
 		@InjectMapper() private mapper: Mapper,
 		@InjectRepository(ConvertRate)
 		private readonly convertRateRepository: BaseRepository<ConvertRate, ModelRefs<ConvertRate>>,
-		@Inject(CurrenciesService)
-		private readonly currenciesService: CurrenciesService,
+		@InjectRepository(Currency)
+		private readonly currenciesRepository: BaseRepository<Currency, ModelRefs<Currency>>,
 	) {}
 
 	async getAll(): Promise<ConvertRateDto[]> {
@@ -39,11 +39,13 @@ export class ConvertRatesService {
 		return this.mapper.map(createdConvertRate, ConvertRateDto, ConvertRate);
 	}
 
-	private async _checkCurrency(currencyId: string): Promise<void> {
-		const currency = await this.currenciesService.getById(currencyId);
+	private async _checkCurrency(currencyId: string): Promise<Currency> {
+		const currency = await this.currenciesRepository.findById(currencyId);
 
 		if (!currency) {
 			throw new BadRequestException('Currency not found');
 		}
+
+		return currency;
 	}
 }

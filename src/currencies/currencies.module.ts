@@ -6,14 +6,21 @@ import { Currency, currencySchema } from './models';
 import { CurrencyProfile } from './profiles';
 import { MongooseModule } from '@nestjs/mongoose';
 
-const mongooseCurrenciesModule = MongooseModule.forFeature([
+export const mongooseCurrenciesFeature = MongooseModule.forFeature([
 	{ name: Currency.name, schema: currencySchema },
 ]);
 
 @Module({
 	providers: [CurrenciesService, CurrencyProfile],
 	controllers: [CurrenciesController],
-	imports: [DataModule.forFeature([Currency], mongooseCurrenciesModule)],
+	imports: [
+		DataModule.forFeature([
+			{
+				model: Currency,
+				mongooseModule: mongooseCurrenciesFeature,
+			},
+		]),
+	],
 	exports: [CurrenciesService],
 })
 export class CurrenciesModule {}
