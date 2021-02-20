@@ -4,6 +4,7 @@ import { classes } from '@automapper/classes';
 import { CurrenciesModule } from './currencies/currencies.module';
 import { ConvertRatesModule } from './convert-rates/convert-rates.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { DataModule } from './data/data.module';
 
 @Module({
 	imports: [
@@ -16,6 +17,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 			options: [{ name: 'app', pluginInitializer: classes }],
 			singular: true,
 		}),
+		DataModule.forRoot(),
 		CurrenciesModule,
 		ConvertRatesModule,
 	],

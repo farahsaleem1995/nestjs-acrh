@@ -1,7 +1,7 @@
 import { Provider } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
-import { ClassConstructor } from 'class-transformer';
 import { Model } from 'mongoose';
+import { repositoryProviderModelTokens, repositoryTokenKeyword } from '../decorators';
 import { BaseModel } from '../models';
 import { BaseRepository } from '../repositories';
 import { BaseDocument, ModelRefs } from '../types';
@@ -19,7 +19,7 @@ function createRepositoryProvider<TModel extends BaseModel>(
 	token: string,
 ): Provider<BaseRepository<TModel, ModelRefs<BaseModel>>> {
 	return {
-		provide: `${token}Repository`,
+		provide: `${token}${repositoryTokenKeyword}`,
 		useFactory: (
 			repository: BaseRepository<TModel, ModelRefs<BaseModel>>,
 			model: Model<BaseDocument<TModel>>,
@@ -30,10 +30,10 @@ function createRepositoryProvider<TModel extends BaseModel>(
 	};
 }
 
-export function createRepositoryProviders(
-	models: ClassConstructor<BaseModel>[],
-): Array<Provider<BaseRepository<BaseModel, ModelRefs<BaseModel>>>> {
-	return models.map((model) => {
-		return createRepositoryProvider(model.name);
+export function createRepositoryProviders(): Array<
+	Provider<BaseRepository<BaseModel, ModelRefs<BaseModel>>>
+> {
+	return repositoryProviderModelTokens.map((modelToken) => {
+		return createRepositoryProvider(modelToken);
 	});
 }

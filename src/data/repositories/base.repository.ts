@@ -103,6 +103,23 @@ export class BaseRepository<TModel extends BaseModel, TRefs extends ModelRefs<TM
 		return query;
 	}
 
+	// private _populateRefs<
+	// 	TQueryResultType extends BaseDocument<TModel> | BaseDocument<TModel>[],
+	// 	TQuery extends Query<TQueryResultType, BaseDocument<TModel>> | BaseDocument<TModel>
+	// >(
+	// 	query: TQuery,
+	// 	refs: ModelRefs<TModel>,
+	// ): TQuery {
+	// 	result
+	// 	Object.entries(refs).forEach(([refKey, refValue]) => {
+	// 		if (!!refValue) {
+	// 			query = query.populate(refKey.toString());
+	// 		}
+	// 	});
+
+	// 	return query;
+	// }
+
 	private static _throwMongoError(err: MongoError): void {
 		throw new InternalServerErrorException(err, err.errmsg);
 	}

@@ -1,11 +1,13 @@
 import * as mongoose from 'mongoose';
 import { AutoMap } from '@automapper/classes';
-import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema } from '@nestjs/mongoose';
 import { Exclude, Expose, Type } from 'class-transformer';
 import { Currency } from 'src/currencies/models';
 import { BaseModel } from 'src/data/models';
 import { Ref } from 'src/data/types';
+import { ForFeature } from 'src/data/decorators';
 
+@ForFeature()
 @Exclude()
 @Schema({
 	timestamps: true,
@@ -48,9 +50,3 @@ export class ConvertRate extends BaseModel {
 	@Expose()
 	convertRateValue: number;
 }
-
-export const convertRateSchema = SchemaFactory.createForClass(ConvertRate);
-
-export const convertRateModel = MongooseModule.forFeature([
-	{ name: ConvertRate.name, schema: convertRateSchema },
-]);

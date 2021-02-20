@@ -1,9 +1,11 @@
 import { AutoMap } from '@automapper/classes';
-import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema } from '@nestjs/mongoose';
 import { Exclude, Expose } from 'class-transformer';
 import { ColumnSizes } from 'src/data/constants';
+import { ForFeature } from 'src/data/decorators';
 import { BaseModel } from 'src/data/models';
 
+@ForFeature()
 @Exclude()
 @Schema({
 	timestamps: true,
@@ -48,9 +50,3 @@ export class Currency extends BaseModel {
 	@Expose()
 	symbol: string;
 }
-
-export const currencySchema = SchemaFactory.createForClass(Currency);
-
-export const currencyModel = MongooseModule.forFeature([
-	{ name: Currency.name, schema: currencySchema },
-]);

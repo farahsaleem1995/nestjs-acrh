@@ -4,6 +4,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { Currency } from 'src/currencies/models';
 import { InjectRepository } from 'src/data/decorators';
 import { BaseRepository } from 'src/data/repositories';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { ModelRefs } from 'src/data/types';
 import { ConvertRateDto } from '../dtos';
 import { CreateConvertRateDto } from '../dtos/create-convert-rate.dto';

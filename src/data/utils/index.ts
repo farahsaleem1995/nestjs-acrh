@@ -1,1 +1,2 @@
-export * from './repository.provider';
+export * from './helpers';
+export * from './repository-provider';
