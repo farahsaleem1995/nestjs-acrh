@@ -1,5 +1,5 @@
 import { AutoMap } from '@automapper/classes';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude, Expose } from 'class-transformer';
 import { ColumnSizes } from 'src/data/constants';
 import { BaseModel } from 'src/data/models';
@@ -50,3 +50,7 @@ export class Currency extends BaseModel {
 }
 
 export const currencySchema = SchemaFactory.createForClass(Currency);
+
+export const currencyModel = MongooseModule.forFeature([
+	{ name: Currency.name, schema: currencySchema },
+]);

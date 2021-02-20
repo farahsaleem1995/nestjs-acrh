@@ -13,19 +13,37 @@ export interface DataFeature {
 	mongooseModule: DynamicModule;
 }
 
+export type DataModuleInstances = { [key: string]: DynamicModule };
+
 @Module({})
 export class DataModule {
-	static forFeature(dataFeatures: DataFeature[]): DynamicModule {
-		const models = dataFeatures.map((feature) => feature.model);
-		const mongooseModules = dataFeatures.map((feature) => feature.mongooseModule);
+	private static instances: DataModuleInstances = {};
 
-		const repositoryProviders = createRepositoryProviders(models);
+	static getInstance(...keys: string[]): DynamicModule[] {
+		const result: DynamicModule[] = [];
 
-		return {
+		keys.forEach((key) => {
+			result.push(this.instances[key]);
+		});
+
+		return result;
+	}
+
+	static forFeature(moduleKey: string, dataFeature: DataFeature): DynamicModule {
+		const model = dataFeature.model;
+		const mongooseModules = dataFeature.mongooseModule;
+
+		const repositoryProviders = createRepositoryProviders([model]);
+
+		const module: DynamicModule = {
 			module: DataModule,
-			imports: [...mongooseModules],
+			imports: [mongooseModules],
 			providers: [InputValidationPipe, BaseRepository, ...repositoryProviders],
-			exports: [InputValidationPipe, BaseRepository, ...repositoryProviders],
+			exports: [...repositoryProviders],
 		};
+
+		this.instances[moduleKey] = module;
+
+		return module;
 	}
 }
