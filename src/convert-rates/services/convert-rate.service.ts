@@ -33,9 +33,10 @@ export class ConvertRatesService {
 	}
 
 	async create(createDto: CreateConvertRateDto): Promise<ConvertRateDto> {
-		const createdConvertRate = await this.convertRateRepository.create(createDto);
-
-		console.log(createdConvertRate);
+		const createdConvertRate = await this.convertRateRepository.create(createDto, {
+			fromCurrency: true,
+			toCurrency: true,
+		});
 
 		return this.mapper.map(createdConvertRate, ConvertRateDto, ConvertRate);
 	}

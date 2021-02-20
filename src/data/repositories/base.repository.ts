@@ -54,11 +54,18 @@ export class BaseRepository<TModel extends BaseModel, TRefs extends ModelRefs<TM
 		}
 	}
 
-	async create(item: Partial<TModel>): Promise<TModel> {
+	async create(item: Partial<TModel>, refs?: ModelRefs<TModel>): Promise<TModel> {
 		const doc = this.createModel(item);
 
 		try {
-			const model = await doc.save();
+			let model = await doc.save();
+
+			const refEntries = Object.entries(refs);
+			for (const entry of refEntries) {
+				if (!!entry[1]) {
+					model = await model.populate(entry[0]).execPopulate();
+				}
+			}
 
 			return this._toClassObject(model.toObject());
 		} catch (e) {
