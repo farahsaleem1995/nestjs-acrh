@@ -1,12 +1,11 @@
 import { AutoMap } from '@automapper/classes';
 import { Prop, Schema } from '@nestjs/mongoose';
-import { Exclude, Expose } from 'class-transformer';
+import { Expose } from 'class-transformer';
 import { ColumnSizes } from 'src/data/constants';
 import { ForFeature } from 'src/data/decorators';
 import { BaseModel } from 'src/data/models';
 
 @ForFeature()
-@Exclude()
 @Schema({
 	timestamps: true,
 	id: true,
@@ -27,7 +26,6 @@ export class Currency extends BaseModel {
 		maxlength: ColumnSizes.Length32,
 	})
 	@AutoMap()
-	@Expose()
 	name: string;
 
 	@Prop({
@@ -37,7 +35,6 @@ export class Currency extends BaseModel {
 		maxlength: ColumnSizes.Length4,
 	})
 	@AutoMap()
-	@Expose()
 	code: string;
 
 	@Prop({
@@ -47,6 +44,5 @@ export class Currency extends BaseModel {
 		maxlength: ColumnSizes.Length2,
 	})
 	@AutoMap()
-	@Expose()
 	symbol: string;
 }

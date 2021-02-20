@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 import { AutoMap } from '@automapper/classes';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Exclude, Expose, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 import { Currency } from 'src/currencies/models';
 import { BaseDocument, BaseModel } from 'src/data/models';
 import { Ref } from 'src/data/types';
@@ -22,7 +22,6 @@ const convertRateSchemaFactory = () => {
 };
 
 @ForFeatureAsync({ useFactory: convertRateSchemaFactory })
-@Exclude()
 @Schema({
 	timestamps: true,
 	id: true,
@@ -42,7 +41,6 @@ export class ConvertRate extends BaseModel {
 		required: true,
 	})
 	@AutoMap(() => Currency)
-	@Expose()
 	@Type(() => Currency)
 	fromCurrency: Ref<Currency>;
 
@@ -52,7 +50,6 @@ export class ConvertRate extends BaseModel {
 		required: true,
 	})
 	@AutoMap(() => Currency)
-	@Expose()
 	@Type(() => Currency)
 	toCurrency: Ref<Currency>;
 
@@ -61,6 +58,5 @@ export class ConvertRate extends BaseModel {
 		required: true,
 	})
 	@AutoMap()
-	@Expose()
 	convertRateValue: number;
 }
