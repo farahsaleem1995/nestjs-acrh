@@ -15,9 +15,9 @@ export class ConvertRatesService {
 	constructor(
 		@InjectMapper() private mapper: Mapper,
 		@InjectRepository(ConvertRate)
-		private readonly convertRateRepository: BaseRepository<ConvertRate, ModelRefs<ConvertRate>>,
+		private readonly convertRateRepository: BaseRepository<ConvertRate>,
 		@InjectRepository(Currency)
-		private readonly currenciesRepository: BaseRepository<Currency, ModelRefs<Currency>>,
+		private readonly currenciesRepository: BaseRepository<Currency>,
 	) {}
 
 	async getAll(): Promise<ConvertRateDto[]> {

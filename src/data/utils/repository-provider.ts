@@ -7,7 +7,7 @@ import { BaseRepository } from '../repositories';
 import { BaseDocument, ModelRefs } from '../types';
 
 function repositoryFactory<TModel extends BaseModel>(
-	repository: BaseRepository<TModel, ModelRefs<BaseModel>>,
+	repository: BaseRepository<TModel>,
 	model: Model<BaseDocument<TModel>>,
 ) {
 	repository.setModel(model);
@@ -17,22 +17,17 @@ function repositoryFactory<TModel extends BaseModel>(
 
 function createRepositoryProvider<TModel extends BaseModel>(
 	token: string,
-): Provider<BaseRepository<TModel, ModelRefs<BaseModel>>> {
+): Provider<BaseRepository<TModel>> {
 	return {
 		provide: `${token}${repositoryTokenKeyword}`,
-		useFactory: (
-			repository: BaseRepository<TModel, ModelRefs<BaseModel>>,
-			model: Model<BaseDocument<TModel>>,
-		) => {
+		useFactory: (repository: BaseRepository<TModel>, model: Model<BaseDocument<TModel>>) => {
 			return repositoryFactory<TModel>(repository, model);
 		},
 		inject: [BaseRepository, getModelToken(token)],
 	};
 }
 
-export function createRepositoryProviders(): Array<
-	Provider<BaseRepository<BaseModel, ModelRefs<BaseModel>>>
-> {
+export function createRepositoryProviders(): Array<Provider<BaseRepository<BaseModel>>> {
 	return repositoryProviderModelTokens.map((modelToken) => {
 		return createRepositoryProvider(modelToken);
 	});

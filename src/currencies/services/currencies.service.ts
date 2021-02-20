@@ -13,7 +13,7 @@ export class CurrenciesService {
 	constructor(
 		@InjectMapper() private mapper: Mapper,
 		@InjectRepository(Currency)
-		private readonly currenciesRepository: BaseRepository<Currency, ModelRefs<Currency>>,
+		private readonly currenciesRepository: BaseRepository<Currency>,
 	) {}
 
 	async getAll(): Promise<CurrencyDto[]> {

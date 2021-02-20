@@ -6,7 +6,7 @@ import { BaseModel } from '../models';
 import { BaseDocument, ModelRefs } from '../types';
 
 @Injectable({ scope: Scope.TRANSIENT })
-export class BaseRepository<TModel extends BaseModel, TRefs extends ModelRefs<TModel>> {
+export class BaseRepository<TModel extends BaseModel> {
 	private _modelType: ClassConstructor<TModel>;
 	private _model: Model<BaseDocument<TModel>>;
 
@@ -18,11 +18,14 @@ export class BaseRepository<TModel extends BaseModel, TRefs extends ModelRefs<TM
 		return new this._model(doc);
 	}
 
-	async findAll(filter: FilterQuery<BaseDocument<TModel>>, refs?: TRefs): Promise<TModel[]> {
+	async findAll(
+		filter: FilterQuery<BaseDocument<TModel>>,
+		refs: ModelRefs<TModel> = {},
+	): Promise<TModel[]> {
 		try {
 			const query = this._model.find(filter);
 
-			const model = refs ? await this._populateQueryRefs(query, refs) : await query.exec();
+			const model = await this._populateQueryRefs(query, refs);
 
 			return this._toClassArray(model);
 		} catch (e) {
@@ -30,11 +33,14 @@ export class BaseRepository<TModel extends BaseModel, TRefs extends ModelRefs<TM
 		}
 	}
 
-	async findOne(filter: FilterQuery<BaseDocument<TModel>>, refs?: TRefs): Promise<TModel> {
+	async findOne(
+		filter: FilterQuery<BaseDocument<TModel>>,
+		refs: ModelRefs<TModel> = {},
+	): Promise<TModel> {
 		try {
 			const query = this._model.findOne(filter);
 
-			const model = refs ? await this._populateQueryRefs(query, refs) : await query.exec();
+			const model = await this._populateQueryRefs(query, refs);
 
 			return this._toClassObject(model.toObject());
 		} catch (e) {
@@ -42,11 +48,11 @@ export class BaseRepository<TModel extends BaseModel, TRefs extends ModelRefs<TM
 		}
 	}
 
-	async findById(id: string, refs?: ModelRefs<TModel>): Promise<TModel> {
+	async findById(id: string, refs: ModelRefs<TModel> = {}): Promise<TModel> {
 		try {
 			const query = this._model.findById(BaseRepository._toObjectId(id));
 
-			const model = refs ? await this._populateQueryRefs(query, refs) : await query.exec();
+			const model = await this._populateQueryRefs(query, refs);
 
 			return this._toClassObject(model.toObject());
 		} catch (e) {
@@ -69,14 +75,14 @@ export class BaseRepository<TModel extends BaseModel, TRefs extends ModelRefs<TM
 	async update(
 		id: string,
 		item: UpdateQuery<BaseDocument<TModel>>,
-		refs?: ModelRefs<TModel>,
+		refs: ModelRefs<TModel> = {},
 	): Promise<TModel> {
 		try {
 			const query = this._model.findByIdAndUpdate(BaseRepository._toObjectId(id), item, {
 				new: true,
 			});
 
-			const model = refs ? await this._populateQueryRefs(query, refs) : await query.exec();
+			const model = await this._populateQueryRefs(query, refs);
 
 			return this._toClassObject(model.toObject());
 		} catch (e) {
@@ -84,11 +90,11 @@ export class BaseRepository<TModel extends BaseModel, TRefs extends ModelRefs<TM
 		}
 	}
 
-	async delete(id: string, refs?: ModelRefs<TModel>): Promise<TModel> {
+	async delete(id: string, refs: ModelRefs<TModel> = {}): Promise<TModel> {
 		try {
 			const query = this._model.findByIdAndDelete(BaseRepository._toObjectId(id));
 
-			const model = refs ? await this._populateQueryRefs(query, refs) : await query.exec();
+			const model = await this._populateQueryRefs(query, refs);
 
 			return this._toClassObject(model.toObject());
 		} catch (e) {
