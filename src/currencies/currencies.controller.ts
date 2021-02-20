@@ -12,14 +12,14 @@ export class CurrenciesController {
 		return this.currenciesService.getAll();
 	}
 
-	@Get(':id')
-	async getById(@Param('id') id: string): Promise<CurrencyDto> {
-		return this.currenciesService.getById(id);
-	}
-
 	@Post()
 	async create(@Body() createDto: CreateCurrencyDto): Promise<CurrencyDto> {
 		return this.currenciesService.create(createDto);
+	}
+
+	@Get(':id')
+	async getById(@Param('id') id: string): Promise<CurrencyDto> {
+		return this.currenciesService.getById(id);
 	}
 
 	@Put(':id')

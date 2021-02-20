@@ -20,13 +20,9 @@ export class BaseRepository<TModel extends BaseModel, TRefs extends ModelRefs<TM
 
 	async findAll(filter: FilterQuery<BaseDocument<TModel>>, refs?: TRefs): Promise<TModel[]> {
 		try {
-			let query = this._model.find(filter);
+			const query = this._model.find(filter);
 
-			if (refs) {
-				query = this._populateQueryRefs(query, refs);
-			}
-
-			const model = await query.exec();
+			const model = refs ? await this._populateQueryRefs(query, refs) : await query.exec();
 
 			return this._toClassArray(model);
 		} catch (e) {
@@ -34,9 +30,11 @@ export class BaseRepository<TModel extends BaseModel, TRefs extends ModelRefs<TM
 		}
 	}
 
-	async findOne(filter: FilterQuery<BaseDocument<TModel>>): Promise<TModel> {
+	async findOne(filter: FilterQuery<BaseDocument<TModel>>, refs?: TRefs): Promise<TModel> {
 		try {
-			const model = await this._model.findOne(filter).exec();
+			const query = this._model.findOne(filter);
+
+			const model = refs ? await this._populateQueryRefs(query, refs) : await query.exec();
 
 			return this._toClassObject(model.toObject());
 		} catch (e) {
@@ -44,9 +42,11 @@ export class BaseRepository<TModel extends BaseModel, TRefs extends ModelRefs<TM
 		}
 	}
 
-	async findById(id: string): Promise<TModel> {
+	async findById(id: string, refs?: ModelRefs<TModel>): Promise<TModel> {
 		try {
-			const model = await this._model.findById(BaseRepository._toObjectId(id)).exec();
+			const query = this._model.findById(BaseRepository._toObjectId(id));
+
+			const model = refs ? await this._populateQueryRefs(query, refs) : await query.exec();
 
 			return this._toClassObject(model.toObject());
 		} catch (e) {
@@ -54,13 +54,11 @@ export class BaseRepository<TModel extends BaseModel, TRefs extends ModelRefs<TM
 		}
 	}
 
-	async create(item: Partial<TModel>, refs: ModelRefs<TModel> = {}): Promise<TModel> {
+	async create(item: Partial<TModel>): Promise<TModel> {
 		const doc = this.createModel(item);
 
 		try {
-			let model = await doc.save();
-
-			model = this._populateDocRefs(model, refs);
+			const model = await doc.save();
 
 			return this._toClassObject(model.toObject());
 		} catch (e) {
@@ -74,11 +72,11 @@ export class BaseRepository<TModel extends BaseModel, TRefs extends ModelRefs<TM
 		refs?: ModelRefs<TModel>,
 	): Promise<TModel> {
 		try {
-			let model = await this._model
-				.findByIdAndUpdate(BaseRepository._toObjectId(id), item, { new: true })
-				.exec();
+			const query = this._model.findByIdAndUpdate(BaseRepository._toObjectId(id), item, {
+				new: true,
+			});
 
-			model = this._populateDocRefs(model, refs);
+			const model = refs ? await this._populateQueryRefs(query, refs) : await query.exec();
 
 			return this._toClassObject(model.toObject());
 		} catch (e) {
@@ -88,9 +86,9 @@ export class BaseRepository<TModel extends BaseModel, TRefs extends ModelRefs<TM
 
 	async delete(id: string, refs?: ModelRefs<TModel>): Promise<TModel> {
 		try {
-			let model = await this._model.findByIdAndDelete(BaseRepository._toObjectId(id)).exec();
+			const query = this._model.findByIdAndDelete(BaseRepository._toObjectId(id));
 
-			model = this._populateDocRefs(model, refs);
+			const model = refs ? await this._populateQueryRefs(query, refs) : await query.exec();
 
 			return this._toClassObject(model.toObject());
 		} catch (e) {
@@ -98,30 +96,19 @@ export class BaseRepository<TModel extends BaseModel, TRefs extends ModelRefs<TM
 		}
 	}
 
-	private _populateQueryRefs<TResultType extends BaseDocument<TModel> | BaseDocument<TModel>[]>(
+	private async _populateQueryRefs<
+		TResultType extends BaseDocument<TModel> | BaseDocument<TModel>[]
+	>(
 		query: Query<TResultType, BaseDocument<TModel>>,
 		refs: ModelRefs<TModel>,
-	): Query<TResultType, BaseDocument<TModel>> {
+	): Promise<TResultType> {
 		const refKeys = this._getRefKeys(refs);
 
 		refKeys.forEach((key) => {
-			query = query.populate(key.toString());
+			query = query.populate(key);
 		});
 
-		return query;
-	}
-
-	private _populateDocRefs(
-		doc: BaseDocument<TModel>,
-		refs: ModelRefs<TModel>,
-	): BaseDocument<TModel> {
-		const refKeys = this._getRefKeys(refs);
-
-		refKeys.forEach((key) => {
-			doc = doc.populate(key.toString());
-		});
-
-		return doc;
+		return await query.exec();
 	}
 
 	private _getRefKeys(refs: any): string[] {

@@ -32,11 +32,17 @@ export class ConvertRatesService {
 		return this.mapper.mapArray(currencies, ConvertRateDto, ConvertRate);
 	}
 
-	async create(createDto: CreateConvertRateDto): Promise<ConvertRateDto> {
-		const createdConvertRate = await this.convertRateRepository.create(createDto, {
+	async getById(id: string): Promise<ConvertRateDto> {
+		const convertRate = await this.convertRateRepository.findById(id, {
 			fromCurrency: true,
 			toCurrency: true,
 		});
+
+		return this.mapper.map(convertRate, ConvertRateDto, ConvertRate);
+	}
+
+	async create(createDto: CreateConvertRateDto): Promise<ConvertRateDto> {
+		const createdConvertRate = await this.convertRateRepository.create(createDto);
 
 		return this.mapper.map(createdConvertRate, ConvertRateDto, ConvertRate);
 	}

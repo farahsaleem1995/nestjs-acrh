@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ConvertRateDto } from './dtos';
 import { CreateConvertRateDto } from './dtos/create-convert-rate.dto';
 import { ConvertRatesService } from './services';
@@ -15,5 +15,10 @@ export class ConvertRatesController {
 	@Post()
 	async create(@Body() createDto: CreateConvertRateDto): Promise<ConvertRateDto> {
 		return this.convertRateService.create(createDto);
+	}
+
+	@Get(':id')
+	async getById(@Param('id') id: string): Promise<ConvertRateDto> {
+		return this.convertRateService.getById(id);
 	}
 }
