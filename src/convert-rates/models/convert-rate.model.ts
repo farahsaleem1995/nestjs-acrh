@@ -1,13 +1,27 @@
 import * as mongoose from 'mongoose';
 import { AutoMap } from '@automapper/classes';
-import { Prop, Schema } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude, Expose, Type } from 'class-transformer';
 import { Currency } from 'src/currencies/models';
-import { BaseModel } from 'src/data/models';
+import { BaseDocument, BaseModel } from 'src/data/models';
 import { Ref } from 'src/data/types';
-import { ForFeature } from 'src/data/decorators';
+import { ForFeatureAsync } from 'src/data/decorators';
 
-@ForFeature()
+const convertRateSchemaFactory = () => {
+	const convertRateSchema = SchemaFactory.createForClass(ConvertRate);
+	convertRateSchema.pre<BaseDocument<ConvertRate>>('save', function (next) {
+		try {
+			this.populate('fromCurrency').populate('toCurrency').execPopulate();
+			next();
+		} catch (err) {
+			next(err);
+		}
+	});
+
+	return convertRateSchema;
+};
+
+@ForFeatureAsync({ useFactory: convertRateSchemaFactory })
 @Exclude()
 @Schema({
 	timestamps: true,

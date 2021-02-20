@@ -23,7 +23,7 @@ export class BaseRepository<TModel extends BaseModel, TRefs extends ModelRefs<TM
 			let query = this._model.find(filter);
 
 			if (refs) {
-				query = this._populateRefs(query, refs);
+				query = this._populateQueryRefs(query, refs);
 			}
 
 			const model = await query.exec();
@@ -54,18 +54,13 @@ export class BaseRepository<TModel extends BaseModel, TRefs extends ModelRefs<TM
 		}
 	}
 
-	async create(item: Partial<TModel>, refs?: ModelRefs<TModel>): Promise<TModel> {
+	async create(item: Partial<TModel>, refs: ModelRefs<TModel> = {}): Promise<TModel> {
 		const doc = this.createModel(item);
 
 		try {
 			let model = await doc.save();
 
-			const refEntries = Object.entries(refs);
-			for (const entry of refEntries) {
-				if (!!entry[1]) {
-					model = await model.populate(entry[0]).execPopulate();
-				}
-			}
+			model = this._populateDocRefs(model, refs);
 
 			return this._toClassObject(model.toObject());
 		} catch (e) {
@@ -73,23 +68,29 @@ export class BaseRepository<TModel extends BaseModel, TRefs extends ModelRefs<TM
 		}
 	}
 
-	async update(id: string, item: UpdateQuery<BaseDocument<TModel>>): Promise<TModel> {
+	async update(
+		id: string,
+		item: UpdateQuery<BaseDocument<TModel>>,
+		refs?: ModelRefs<TModel>,
+	): Promise<TModel> {
 		try {
-			const model = await this._model
+			let model = await this._model
 				.findByIdAndUpdate(BaseRepository._toObjectId(id), item, { new: true })
 				.exec();
 
+			model = this._populateDocRefs(model, refs);
+
 			return this._toClassObject(model.toObject());
 		} catch (e) {
 			BaseRepository._throwMongoError(e);
 		}
 	}
 
-	async delete(id: string): Promise<TModel> {
+	async delete(id: string, refs?: ModelRefs<TModel>): Promise<TModel> {
 		try {
-			const model = await this._model
-				.findByIdAndDelete(BaseRepository._toObjectId(id))
-				.exec();
+			let model = await this._model.findByIdAndDelete(BaseRepository._toObjectId(id)).exec();
+
+			model = this._populateDocRefs(model, refs);
 
 			return this._toClassObject(model.toObject());
 		} catch (e) {
@@ -97,35 +98,49 @@ export class BaseRepository<TModel extends BaseModel, TRefs extends ModelRefs<TM
 		}
 	}
 
-	private _populateRefs<TResultType extends BaseDocument<TModel> | BaseDocument<TModel>[]>(
+	private _populateQueryRefs<TResultType extends BaseDocument<TModel> | BaseDocument<TModel>[]>(
 		query: Query<TResultType, BaseDocument<TModel>>,
 		refs: ModelRefs<TModel>,
 	): Query<TResultType, BaseDocument<TModel>> {
-		Object.entries(refs).forEach(([refKey, refValue]) => {
-			if (!!refValue) {
-				query = query.populate(refKey.toString());
-			}
+		const refKeys = this._getRefKeys(refs);
+
+		refKeys.forEach((key) => {
+			query = query.populate(key.toString());
 		});
 
 		return query;
 	}
 
-	// private _populateRefs<
-	// 	TQueryResultType extends BaseDocument<TModel> | BaseDocument<TModel>[],
-	// 	TQuery extends Query<TQueryResultType, BaseDocument<TModel>> | BaseDocument<TModel>
-	// >(
-	// 	query: TQuery,
-	// 	refs: ModelRefs<TModel>,
-	// ): TQuery {
-	// 	result
-	// 	Object.entries(refs).forEach(([refKey, refValue]) => {
-	// 		if (!!refValue) {
-	// 			query = query.populate(refKey.toString());
-	// 		}
-	// 	});
+	private _populateDocRefs(
+		doc: BaseDocument<TModel>,
+		refs: ModelRefs<TModel>,
+	): BaseDocument<TModel> {
+		const refKeys = this._getRefKeys(refs);
 
-	// 	return query;
-	// }
+		refKeys.forEach((key) => {
+			doc = doc.populate(key.toString());
+		});
+
+		return doc;
+	}
+
+	private _getRefKeys(refs: any): string[] {
+		const keys: string[] = [];
+
+		Object.entries(refs).forEach(([refKey, refValue]) => {
+			if (refValue === true) {
+				keys.push(refKey);
+			} else if (refValue !== false) {
+				const subKeys = this._getRefKeys(refValue);
+
+				subKeys.forEach((subKey) => {
+					keys.push(`${refKey}.${subKey}`);
+				});
+			}
+		});
+
+		return keys;
+	}
 
 	private static _throwMongoError(err: MongoError): void {
 		throw new InternalServerErrorException(err, err.errmsg);
