@@ -5,7 +5,7 @@ import { IOperation } from '../interfaces';
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class CreateOperation<TModel extends BaseModel, TCreateDTo>
-	implements IOperation<TModel, TCreateDTo, TModel> {
+	implements IOperation<TModel, TModel, TCreateDTo> {
 	async apply(repository: BaseRepository<TModel>, createDto: TCreateDTo): Promise<TModel> {
 		const createdModel = await repository.create(createDto);
 

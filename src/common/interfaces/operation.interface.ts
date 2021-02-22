@@ -3,8 +3,8 @@ import { BaseRepository } from 'src/data/repositories';
 
 export interface IOperation<
 	TModel extends BaseModel,
-	TArgs,
-	TResultType extends BaseModel | BaseModel[]
+	TRes extends BaseModel | BaseModel[],
+	TArgs = any
 > {
-	apply(repository: BaseRepository<TModel>, args: TArgs): TResultType | Promise<TResultType>;
+	apply(repository: BaseRepository<TModel>, args: TArgs): TRes | Promise<TRes>;
 }

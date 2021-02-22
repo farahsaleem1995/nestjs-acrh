@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { BaseDto } from 'src/data/dtos';
 import { BaseModel } from 'src/data/models';
 import { IOperation } from '../interfaces';
 
@@ -8,13 +7,13 @@ import { IOperation } from '../interfaces';
 export class OperationFactory {
 	constructor(private readonly moduleRef: ModuleRef) {}
 
-	async resolve<TModel extends BaseModel, TArgs, TResultType extends BaseModel | BaseModel[]>(
+	async resolve<TModel extends BaseModel, TRes extends BaseModel | BaseModel[], TArgs = any>(
 		operation: string,
-	): Promise<IOperation<TModel, TArgs, TResultType>> {
+	): Promise<IOperation<TModel, TRes, TArgs>> {
 		const operationToken = getOperationToken(operation);
-		const operationInstance = await this.moduleRef.resolve<
-			IOperation<TModel, TArgs, TResultType>
-		>(operationToken);
+		const operationInstance = await this.moduleRef.resolve<IOperation<TModel, TRes, TArgs>>(
+			operationToken,
+		);
 
 		return operationInstance;
 	}

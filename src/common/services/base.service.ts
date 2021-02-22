@@ -1,5 +1,4 @@
 import { Injectable, Scope } from '@nestjs/common';
-import { BaseDto } from 'src/data/dtos';
 import { BaseModel } from 'src/data/models';
 import { BaseRepository } from 'src/data/repositories';
 import { OperationFactory } from '../utils';
@@ -14,11 +13,11 @@ export class BaseService<TModel extends BaseModel> {
 		this._repository = repository;
 	}
 
-	async apply<TArgs, TResultType extends TModel | TModel[]>(
+	async apply<TRes extends TModel | TModel[], TArgs = any>(
 		operation: string,
 		args: TArgs,
-	): Promise<TResultType> {
-		const operationInstance = await this.operationFactory.resolve<TModel, TArgs, TResultType>(
+	): Promise<TRes> {
+		const operationInstance = await this.operationFactory.resolve<TModel, TRes, TArgs>(
 			operation,
 		);
 

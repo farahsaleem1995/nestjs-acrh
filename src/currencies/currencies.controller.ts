@@ -1,6 +1,5 @@
-import { MapInterceptor } from '@automapper/nestjs';
-import { Body, Controller, Get, Inject, Param, Post, Put, UseInterceptors } from '@nestjs/common';
-import { InjectService, MapResponse } from 'src/common/decorators';
+import { Body, Controller, Get, Inject, Param, Post, Put } from '@nestjs/common';
+import { InjectService, MapArrayResponse, MapResponse } from 'src/common/decorators';
 import { Operations } from 'src/common/enums';
 import { BaseService } from 'src/common/services';
 import { InputValidationPipe } from 'src/data/pipes';
@@ -16,14 +15,15 @@ export class CurrenciesController {
 	) {}
 
 	@Get()
-	async getAll(): Promise<CurrencyDto[]> {
-		return this.currenciesService.getAll();
+	@MapArrayResponse(CurrencyDto, Currency)
+	async getAll(): Promise<Currency[]> {
+		return this.currencyService.apply<Currency[]>(Operations.GetAll, {});
 	}
 
-	@MapResponse(CurrencyDto, Currency)
 	@Post()
+	@MapResponse(CurrencyDto, Currency)
 	async create(@Body() createDto: CreateCurrencyDto): Promise<Currency> {
-		return this.currencyService.apply<CreateCurrencyDto, Currency>(
+		return this.currencyService.apply<Currency, CreateCurrencyDto>(
 			Operations.Create,
 			createDto,
 		);

@@ -18,7 +18,7 @@ export function MapArrayResponse(
 ) {
 	return applyDecorators(
 		UseInterceptors(
-			MapInterceptor(source, destination, { isArray: true }),
+			MapInterceptor(destination, source, { isArray: true }),
 			TransformInterceptor(destination),
 		),
 	);
