@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { ClassConstructor } from 'class-transformer';
 import { BaseModel } from 'src/data/models';
 import { IOperation } from '../interfaces';
 

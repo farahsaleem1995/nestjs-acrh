@@ -1,5 +1,4 @@
 import { Provider } from '@nestjs/common';
-import { ClassConstructor } from 'class-transformer';
 import { BaseModel } from 'src/data/models';
 import { BaseRepository } from 'src/data/repositories';
 import { getRepositoryToken } from 'src/data/utils';
@@ -16,27 +15,23 @@ function serviceFactory<TModel extends BaseModel>(
 }
 
 function createServiceProvider<TModel extends BaseModel>(
-	token: string,
+	modelName: string,
 ): Provider<BaseService<TModel>> {
 	return {
-		provide: `${token}${serviceTokenKeyword}`,
+		provide: getServiceToken(modelName),
 		useFactory: (service: BaseService<TModel>, repository: BaseRepository<TModel>) => {
 			return serviceFactory<TModel>(service, repository);
 		},
-		inject: [BaseService, getRepositoryToken(token)],
+		inject: [BaseService, getRepositoryToken(modelName)],
 	};
 }
 
-export function createServiceProviders(
-	models: ClassConstructor<BaseModel>[],
-): Provider<BaseService<BaseModel>>[] {
-	const modelTokens = models.map((model) => model.name);
-
-	return modelTokens.map((modelToken) => {
-		return createServiceProvider(modelToken);
+export function createServiceProviders(modelNames: string[]): Provider<BaseService<BaseModel>>[] {
+	return modelNames.map((modelName) => {
+		return createServiceProvider(modelName);
 	});
 }
 
-export function getServiceToken(modelToken: string): string {
-	return `${modelToken}${serviceTokenKeyword}`;
+export function getServiceToken(modelName: string): string {
+	return `${modelName}${serviceTokenKeyword}`;
 }

@@ -14,9 +14,9 @@ import { ConvertRate } from '../models';
 export class ConvertRatesService {
 	constructor(
 		@InjectMapper() private mapper: Mapper,
-		@InjectRepository(ConvertRate)
+		@InjectRepository(ConvertRate.name)
 		private readonly convertRateRepository: BaseRepository<ConvertRate>,
-		@InjectRepository(Currency)
+		@InjectRepository(Currency.name)
 		private readonly currenciesRepository: BaseRepository<Currency>,
 	) {}
 

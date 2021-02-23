@@ -1,6 +1,5 @@
 import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { ClassConstructor } from 'class-transformer';
-import { BaseModel } from 'src/data/models';
 import { Operations } from './enums';
 import { CommonFeature } from './interfaces';
 import { CreateOperation } from './operations';
@@ -11,20 +10,20 @@ import { createServiceProviders } from './utils/service-provider';
 
 @Module({})
 export class CommonModule {
-	static forFeature(commonFeatures: CommonFeature<BaseModel>[]): DynamicModule {
+	static forFeature(commonFeatures: CommonFeature[]): DynamicModule {
 		const operationProviders: Provider<any>[] = [];
 
 		const models = commonFeatures.map((feature) => {
-			const featureModel = feature.model;
+			const featureModelName = feature.modelName;
 
 			feature.useDefaults.forEach((defaultOperation) => {
 				operationProviders.push({
-					provide: getOperationToken(featureModel.name, defaultOperation),
+					provide: getOperationToken(featureModelName, defaultOperation),
 					useClass: this.getDefaultOperationClass(defaultOperation),
 				});
 			});
 
-			return feature.model;
+			return featureModelName;
 		});
 
 		const serviceProviders = createServiceProviders(models);

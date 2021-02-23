@@ -2,7 +2,7 @@ import { Provider } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { ClassConstructor } from 'class-transformer';
 import { Model } from 'mongoose';
-import { repositoryProviderModelTokens, repositoryTokenKeyword } from '../decorators';
+import { repositoryProviderModelNames, repositoryTokenKeyword } from '../decorators';
 import { BaseModel } from '../models';
 import { BaseRepository } from '../repositories';
 import { BaseDocument } from '../types';
@@ -17,23 +17,23 @@ function repositoryFactory<TModel extends BaseModel>(
 }
 
 function createRepositoryProvider<TModel extends BaseModel>(
-	token: string,
+	modelName: string,
 ): Provider<BaseRepository<TModel>> {
 	return {
-		provide: `${token}${repositoryTokenKeyword}`,
+		provide: getRepositoryToken(modelName),
 		useFactory: (repository: BaseRepository<TModel>, model: Model<BaseDocument<TModel>>) => {
 			return repositoryFactory<TModel>(repository, model);
 		},
-		inject: [BaseRepository, getModelToken(token)],
+		inject: [BaseRepository, getModelToken(modelName)],
 	};
 }
 
 export function createRepositoryProviders(): Array<Provider<BaseRepository<BaseModel>>> {
-	return repositoryProviderModelTokens.map((modelToken) => {
-		return createRepositoryProvider(modelToken);
+	return repositoryProviderModelNames.map((modelName) => {
+		return createRepositoryProvider(modelName);
 	});
 }
 
-export function getRepositoryToken(modelToken: string): string {
-	return `${modelToken}${repositoryTokenKeyword}`;
+export function getRepositoryToken(modelName: string): string {
+	return `${modelName}${repositoryTokenKeyword}`;
 }

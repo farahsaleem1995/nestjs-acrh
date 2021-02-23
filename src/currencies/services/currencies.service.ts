@@ -12,7 +12,7 @@ import { Currency } from '../models';
 export class CurrenciesService {
 	constructor(
 		@InjectMapper() private mapper: Mapper,
-		@InjectRepository(Currency)
+		@InjectRepository(Currency.name)
 		private readonly currenciesRepository: BaseRepository<Currency>,
 	) {}
 
