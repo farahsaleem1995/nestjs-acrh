@@ -1,7 +1,7 @@
 export enum Operations {
-	GetAll = 'get_all',
-	GetById = 'get_by_id',
-	Create = 'create',
-	Update = 'update',
-	Delete = 'delete',
+	GetAll = 'GetAl',
+	GetById = 'GetById',
+	Create = 'Create',
+	Update = 'Update',
+	Delete = 'Delete',
 }

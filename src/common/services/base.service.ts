@@ -18,6 +18,7 @@ export class BaseService<TModel extends BaseModel> {
 		args: TArgs,
 	): Promise<TRes> {
 		const operationInstance = await this.operationFactory.resolve<TModel, TRes, TArgs>(
+			this._repository.getModelName(),
 			operation,
 		);
 

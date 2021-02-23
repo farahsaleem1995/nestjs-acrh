@@ -14,6 +14,10 @@ export class BaseRepository<TModel extends BaseModel> {
 		this._model = model;
 	}
 
+	getModelName(): string {
+		return this._model.modelName;
+	}
+
 	createModel(doc?: Partial<TModel>): BaseDocument<TModel> {
 		return new this._model(doc);
 	}
