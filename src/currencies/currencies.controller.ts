@@ -23,7 +23,7 @@ export class CurrenciesController {
 	@Post()
 	@MapResponse(CurrencyDto, Currency)
 	async create(@Body() createDto: CreateCurrencyDto): Promise<Currency> {
-		return await this.currencyService.apply<Currency, CreateArgs<CreateCurrencyDto>>(
+		return await this.currencyService.apply<Currency, CreateArgs<Currency, CreateCurrencyDto>>(
 			Operations.Create,
 			{ createDto },
 		);
@@ -41,7 +41,7 @@ export class CurrenciesController {
 		@Param('id') id: string,
 		@Body(new InputValidationPipe(UpdateCurrencyDto)) updateDto: UpdateCurrencyDto,
 	): Promise<Currency> {
-		return await this.currencyService.apply<Currency, UpdateArgs<UpdateCurrencyDto>>(
+		return await this.currencyService.apply<Currency, UpdateArgs<Currency, UpdateCurrencyDto>>(
 			Operations.Update,
 			{ id, updateDto },
 		);
