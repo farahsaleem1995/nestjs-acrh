@@ -4,8 +4,10 @@ import { Operations } from 'src/common/enums';
 import { CreateArgs, GetAllArgs, GetByIdArgs } from 'src/common/operations';
 import { UpdateArgs } from 'src/common/operations/update.operation';
 import { BaseService } from 'src/common/services';
+import { DataQuery } from 'src/data/interfaces';
 import { InputValidationPipe } from 'src/data/pipes';
 import { CurrencyDto, CreateCurrencyDto, UpdateCurrencyDto } from './dtos';
+import { CurrencyQueryDto } from './dtos/currency-query.dto';
 import { Currency } from './models';
 
 @Controller('currencies')
@@ -16,8 +18,11 @@ export class CurrenciesController {
 
 	@Get()
 	@MapArrayResponse(CurrencyDto, Currency)
-	async getAll(): Promise<Currency[]> {
-		return await this.currencyService.apply<Currency[], GetAllArgs>(Operations.GetAll, {});
+	async getAll(@Body() query: DataQuery<Currency>): Promise<Currency[]> {
+		return await this.currencyService.apply<
+			Currency[],
+			GetAllArgs<Currency, DataQuery<Currency>>
+		>(Operations.GetAll, { query });
 	}
 
 	@Post()

@@ -2,6 +2,7 @@ import { Injectable, InternalServerErrorException, Scope } from '@nestjs/common'
 import { plainToClass, ClassConstructor } from 'class-transformer';
 import { MongoError } from 'mongodb';
 import { Types, Model, UpdateQuery, FilterQuery, Query } from 'mongoose';
+import { DataQuery } from '../interfaces';
 import { BaseModel } from '../models';
 import { BaseDocument, ModelRefs } from '../types';
 
@@ -22,12 +23,19 @@ export class BaseRepository<TModel extends BaseModel> {
 		return new this._model(doc);
 	}
 
-	async findAll(
-		filter: FilterQuery<BaseDocument<TModel>>,
-		refs: ModelRefs<TModel> = {},
-	): Promise<TModel[]> {
+	async findAll(query: DataQuery<TModel> = {}, refs: ModelRefs<TModel> = {}): Promise<TModel[]> {
+		const { filter, sort, paginate } = query;
+		const sortStr = sort ? `${sort.direction === 1 ? `-${sort.key}` : sort.key}` : '';
+		const skip =
+			paginate?.page && paginate?.pageSize ? paginate.pageSize * (paginate.page - 1) : 0;
+		const limit = paginate?.pageSize ? paginate.pageSize : 10;
+
 		try {
-			const query = this._model.find(filter);
+			const query = this._model
+				.find(<any>filter)
+				.sort(sortStr)
+				.skip(skip)
+				.limit(limit);
 
 			const model = await this._populateQueryRefs(query, refs);
 
@@ -37,12 +45,9 @@ export class BaseRepository<TModel extends BaseModel> {
 		}
 	}
 
-	async findOne(
-		filter: FilterQuery<BaseDocument<TModel>>,
-		refs: ModelRefs<TModel> = {},
-	): Promise<TModel> {
+	async findOne(filter: FilterQuery<TModel>, refs: ModelRefs<TModel> = {}): Promise<TModel> {
 		try {
-			const query = this._model.findOne(filter);
+			const query = this._model.findOne(<any>filter);
 
 			const model = await this._populateQueryRefs(query, refs);
 
