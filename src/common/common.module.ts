@@ -2,7 +2,8 @@ import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { ClassConstructor } from 'class-transformer';
 import { Operations } from './enums';
 import { CommonFeature } from './interfaces';
-import { CreateOperation, GetAllOperation } from './operations';
+import { CreateOperation, GetAllOperation, GetByIdOperation } from './operations';
+import { UpdateOperation } from './operations/update.operation';
 import { BaseService } from './services';
 import { createServiceProviders, getOperationToken, OperationFactory } from './utils';
 
@@ -39,6 +40,10 @@ export class CommonModule {
 				return CreateOperation;
 			case Operations.GetAll:
 				return GetAllOperation;
+			case Operations.GetById:
+				return GetByIdOperation;
+			case Operations.Update:
+				return UpdateOperation;
 		}
 	}
 }

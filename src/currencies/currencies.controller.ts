@@ -1,44 +1,49 @@
-import { Body, Controller, Get, Inject, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { InjectService, MapArrayResponse, MapResponse } from 'src/common/decorators';
 import { Operations } from 'src/common/enums';
+import { CreateArgs, GetAllArgs, GetByIdArgs } from 'src/common/operations';
+import { UpdateArgs } from 'src/common/operations/update.operation';
 import { BaseService } from 'src/common/services';
 import { InputValidationPipe } from 'src/data/pipes';
 import { CurrencyDto, CreateCurrencyDto, UpdateCurrencyDto } from './dtos';
 import { Currency } from './models';
-import { CurrenciesService } from './services/currencies.service';
 
 @Controller('currencies')
 export class CurrenciesController {
 	constructor(
-		@Inject(CurrenciesService) private readonly currenciesService: CurrenciesService,
 		@InjectService(Currency.name) private readonly currencyService: BaseService<Currency>,
 	) {}
 
 	@Get()
 	@MapArrayResponse(CurrencyDto, Currency)
 	async getAll(): Promise<Currency[]> {
-		return this.currencyService.apply<Currency[]>(Operations.GetAll, {});
+		return await this.currencyService.apply<Currency[], GetAllArgs>(Operations.GetAll, {});
 	}
 
 	@Post()
 	@MapResponse(CurrencyDto, Currency)
 	async create(@Body() createDto: CreateCurrencyDto): Promise<Currency> {
-		return this.currencyService.apply<Currency, CreateCurrencyDto>(
+		return await this.currencyService.apply<Currency, CreateArgs<CreateCurrencyDto>>(
 			Operations.Create,
-			createDto,
+			{ createDto },
 		);
 	}
 
 	@Get(':id')
-	async getById(@Param('id') id: string): Promise<CurrencyDto> {
-		return this.currenciesService.getById(id);
+	@MapResponse(CurrencyDto, Currency)
+	async getById(@Param('id') id: string): Promise<Currency> {
+		return await this.currencyService.apply<Currency, GetByIdArgs>(Operations.GetById, { id });
 	}
 
 	@Put(':id')
+	@MapResponse(CurrencyDto, Currency)
 	async update(
 		@Param('id') id: string,
 		@Body(new InputValidationPipe(UpdateCurrencyDto)) updateDto: UpdateCurrencyDto,
-	): Promise<CurrencyDto> {
-		return await this.currenciesService.update(id, updateDto);
+	): Promise<Currency> {
+		return await this.currencyService.apply<Currency, UpdateArgs<UpdateCurrencyDto>>(
+			Operations.Update,
+			{ id, updateDto },
+		);
 	}
 }

@@ -13,7 +13,12 @@ import { Operations } from 'src/common/enums';
 		CommonModule.forFeature([
 			{
 				modelName: Currency.name,
-				useDefaults: [Operations.Create, Operations.GetAll],
+				useDefaults: [
+					Operations.Create,
+					Operations.GetAll,
+					Operations.GetById,
+					Operations.Update,
+				],
 			},
 		]),
 	],

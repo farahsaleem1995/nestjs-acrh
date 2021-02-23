@@ -13,7 +13,7 @@ export class BaseService<TModel extends BaseModel> {
 		this._repository = repository;
 	}
 
-	async apply<TRes extends TModel | TModel[], TArgs = any>(
+	async apply<TRes extends TModel | TModel[], TArgs>(
 		operation: string,
 		args: TArgs,
 	): Promise<TRes> {
