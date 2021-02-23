@@ -11,7 +11,7 @@ import { CurrenciesService } from './services/currencies.service';
 export class CurrenciesController {
 	constructor(
 		@Inject(CurrenciesService) private readonly currenciesService: CurrenciesService,
-		@InjectService(Currency) private readonly currencyService: BaseService<Currency>,
+		@InjectService(Currency.name) private readonly currencyService: BaseService<Currency>,
 	) {}
 
 	@Get()

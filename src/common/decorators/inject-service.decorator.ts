@@ -1,16 +1,15 @@
 import { Inject } from '@nestjs/common';
-import { ClassConstructor } from 'class-transformer';
-import { BaseModel } from 'src/data/models';
+import { InjectRepository } from 'src/data/decorators';
+import { getServiceToken } from '../utils';
 
-export const serviceProviderModelTokens: string[] = [];
-export const serviceTokenKeyword = 'Service';
+export const serviceProviderModelNames: string[] = [];
 
-export const InjectService = (model: ClassConstructor<BaseModel>) => {
-	const modelToken = model.name;
-
-	if (!serviceProviderModelTokens.includes(modelToken)) {
-		serviceProviderModelTokens.push(modelToken);
+export const InjectService = (modelName: string) => {
+	if (!serviceProviderModelNames.includes(modelName)) {
+		serviceProviderModelNames.push(modelName);
 	}
 
-	return Inject(`${modelToken}${serviceTokenKeyword}`);
+	InjectRepository(modelName);
+
+	return Inject(getServiceToken(modelName));
 };

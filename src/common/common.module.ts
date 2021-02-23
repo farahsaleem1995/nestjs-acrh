@@ -2,11 +2,9 @@ import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { ClassConstructor } from 'class-transformer';
 import { Operations } from './enums';
 import { CommonFeature } from './interfaces';
-import { CreateOperation } from './operations';
-import { GetAllOperation } from './operations/get-all.operation';
+import { CreateOperation, GetAllOperation } from './operations';
 import { BaseService } from './services';
-import { getOperationToken, OperationFactory } from './utils';
-import { createServiceProviders } from './utils/service-provider';
+import { createServiceProviders, getOperationToken, OperationFactory } from './utils';
 
 @Module({})
 export class CommonModule {

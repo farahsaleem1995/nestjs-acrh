@@ -2,7 +2,7 @@ import { Provider } from '@nestjs/common';
 import { BaseModel } from 'src/data/models';
 import { BaseRepository } from 'src/data/repositories';
 import { getRepositoryToken } from 'src/data/utils';
-import { serviceTokenKeyword } from '../decorators';
+import { getServiceToken } from '.';
 import { BaseService } from '../services';
 
 function serviceFactory<TModel extends BaseModel>(
@@ -30,8 +30,4 @@ export function createServiceProviders(modelNames: string[]): Provider<BaseServi
 	return modelNames.map((modelName) => {
 		return createServiceProvider(modelName);
 	});
-}
-
-export function getServiceToken(modelName: string): string {
-	return `${modelName}${serviceTokenKeyword}`;
 }

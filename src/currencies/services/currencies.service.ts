@@ -3,7 +3,6 @@ import { Mapper } from '@automapper/types';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from 'src/data/decorators';
 import { BaseRepository } from 'src/data/repositories';
-import { ModelRefs } from 'src/data/types';
 import { CreateCurrencyDto, UpdateCurrencyDto } from '../dtos';
 import { CurrencyDto } from '../dtos/currency.dto';
 import { Currency } from '../models';

@@ -1,8 +1,8 @@
 import { Provider } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
-import { ClassConstructor } from 'class-transformer';
 import { Model } from 'mongoose';
-import { repositoryProviderModelNames, repositoryTokenKeyword } from '../decorators';
+import { getRepositoryToken } from '.';
+import { repositoryProviderModelNames } from '../decorators';
 import { BaseModel } from '../models';
 import { BaseRepository } from '../repositories';
 import { BaseDocument } from '../types';
@@ -32,8 +32,4 @@ export function createRepositoryProviders(): Array<Provider<BaseRepository<BaseM
 	return repositoryProviderModelNames.map((modelName) => {
 		return createRepositoryProvider(modelName);
 	});
-}
-
-export function getRepositoryToken(modelName: string): string {
-	return `${modelName}${repositoryTokenKeyword}`;
 }

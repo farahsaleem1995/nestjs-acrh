@@ -1,6 +1,6 @@
 import { AutoMap } from '@automapper/classes';
 import { Exclude, Expose } from 'class-transformer';
-import { BaseDto } from 'src/data/dtos';
+import { BaseDto } from 'src/common/dtos';
 
 @Exclude()
 export class CurrencyDto extends BaseDto {
