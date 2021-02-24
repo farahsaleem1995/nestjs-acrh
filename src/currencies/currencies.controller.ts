@@ -1,11 +1,12 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { InjectService, MapArrayResponse, MapResponse } from 'src/common/decorators';
 import { Operations } from 'src/common/enums';
 import { CreateArgs, GetAllArgs, GetByIdArgs } from 'src/common/operations';
 import { UpdateArgs } from 'src/common/operations/update.operation';
 import { BaseService } from 'src/common/services';
-import { DataQuery } from 'src/data/interfaces';
 import { InputValidationPipe } from 'src/data/pipes';
+import { DataQuery } from 'src/data/types';
+import { QueryTransform } from 'src/utility/pipes';
 import { CurrencyDto, CreateCurrencyDto, UpdateCurrencyDto } from './dtos';
 import { CurrencyQueryDto } from './dtos/currency-query.dto';
 import { Currency } from './models';
@@ -18,7 +19,9 @@ export class CurrenciesController {
 
 	@Get()
 	@MapArrayResponse(CurrencyDto, Currency)
-	async getAll(@Body() query: DataQuery<Currency>): Promise<Currency[]> {
+	async getAll(
+		@Query(QueryTransform(CurrencyQueryDto)) query: DataQuery<Currency>,
+	): Promise<Currency[]> {
 		return await this.currencyService.apply<
 			Currency[],
 			GetAllArgs<Currency, DataQuery<Currency>>

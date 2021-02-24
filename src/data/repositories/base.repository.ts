@@ -2,9 +2,8 @@ import { Injectable, InternalServerErrorException, Scope } from '@nestjs/common'
 import { plainToClass, ClassConstructor } from 'class-transformer';
 import { MongoError } from 'mongodb';
 import { Types, Model, UpdateQuery, FilterQuery, Query } from 'mongoose';
-import { DataQuery } from '../interfaces';
 import { BaseModel } from '../models';
-import { BaseDocument, ModelRefs } from '../types';
+import { BaseDocument, DataQuery, ModelRefs } from '../types';
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class BaseRepository<TModel extends BaseModel> {
@@ -25,7 +24,7 @@ export class BaseRepository<TModel extends BaseModel> {
 
 	async findAll(query: DataQuery<TModel> = {}, refs: ModelRefs<TModel> = {}): Promise<TModel[]> {
 		const { filter, sort, paginate } = query;
-		const sortStr = sort ? `${sort.direction === 1 ? `-${sort.key}` : sort.key}` : '';
+		const sortObject = { [sort.key]: sort.direction };
 		const skip =
 			paginate?.page && paginate?.pageSize ? paginate.pageSize * (paginate.page - 1) : 0;
 		const limit = paginate?.pageSize ? paginate.pageSize : 10;
@@ -33,7 +32,7 @@ export class BaseRepository<TModel extends BaseModel> {
 		try {
 			const query = this._model
 				.find(<any>filter)
-				.sort(sortStr)
+				.sort(sortObject)
 				.skip(skip)
 				.limit(limit);
 

@@ -1,7 +1,7 @@
 import { Injectable, Scope } from '@nestjs/common';
-import { DataQuery } from 'src/data/interfaces';
 import { BaseModel } from 'src/data/models';
 import { BaseRepository } from 'src/data/repositories';
+import { DataQuery } from 'src/data/types';
 import { IOperation } from '../interfaces';
 
 export interface GetAllArgs<TModel extends BaseModel, TQuery extends DataQuery<TModel>> {
