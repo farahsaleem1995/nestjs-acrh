@@ -5,7 +5,7 @@ import {
 	QuerySortKey,
 	QueryPaginatePage,
 	QueryPaginatePageSize,
-} from 'src/utility/decorators';
+} from 'src/common/decorators';
 
 @Exclude()
 export class CurrencyQueryDto {

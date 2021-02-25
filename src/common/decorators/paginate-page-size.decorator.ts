@@ -1,7 +1,7 @@
-import { Expose, Transform, Type } from 'class-transformer';
-import { IsInt, IsNumber, IsNumberString, IsOptional, Max, Min } from 'class-validator';
+import { Expose, Transform } from 'class-transformer';
+import { IsInt, IsNumber, IsOptional, Max, Min } from 'class-validator';
 import { QueryProps } from '../constants';
-import { IQueryOption } from '../interfaces';
+import { IQueryOption } from '../interceptors';
 
 export function QueryPaginatePageSize(option: IQueryOption = {}) {
 	const { key } = option;

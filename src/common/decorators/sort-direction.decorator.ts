@@ -1,7 +1,7 @@
 import { Expose, Transform } from 'class-transformer';
 import { IsIn, IsOptional, IsString } from 'class-validator';
-import { QueryProps } from '../constants';
-import { IQueryOption } from '../interfaces';
+import { QueryProps } from '../../common/constants';
+import { IQueryOption } from '../interceptors';
 
 export function QuerySortDirection(option: IQueryOption = {}) {
 	const { key } = option;

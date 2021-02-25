@@ -24,7 +24,7 @@ export class BaseRepository<TModel extends BaseModel> {
 
 	async findAll(query: DataQuery<TModel> = {}, refs: ModelRefs<TModel> = {}): Promise<TModel[]> {
 		const { filter, sort, paginate } = query;
-		const sortObject = { [sort.key]: sort.direction };
+		const sortObject = sort ? { [sort.key]: sort.direction } : {};
 		const skip =
 			paginate?.page && paginate?.pageSize ? paginate.pageSize * (paginate.page - 1) : 0;
 		const limit = paginate?.pageSize ? paginate.pageSize : 10;

@@ -1,1 +1,1 @@
-export * from './coulmn-size.constant';
+export * from './column-size.constant';
