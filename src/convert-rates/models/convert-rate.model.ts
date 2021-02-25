@@ -1,60 +1,33 @@
-import * as mongoose from 'mongoose';
 import { AutoMap } from '@automapper/classes';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { prop, Ref } from '@typegoose/typegoose';
 import { Type } from 'class-transformer';
 import { Currency } from 'src/currencies/models';
-import { BaseDocument, BaseModel } from 'src/data/models';
-import { Ref } from 'src/data/types';
-import { ForFeatureAsync } from 'src/data/decorators';
+import { ForFeature } from 'src/data/decorators';
+import { BaseModel } from 'src/data/models';
+import { UseMongoosePlugin } from 'src/common/decorators';
 
-const convertRateSchemaFactory = () => {
-	const convertRateSchema = SchemaFactory.createForClass(ConvertRate);
-	convertRateSchema.pre<BaseDocument<ConvertRate>>('save', function (next) {
-		try {
-			this.populate('fromCurrency').populate('toCurrency').execPopulate();
-			next();
-		} catch (err) {
-			next(err);
-		}
-	});
-
-	return convertRateSchema;
-};
-
-@ForFeatureAsync({ useFactory: convertRateSchemaFactory })
-@Schema({
-	timestamps: true,
-	id: true,
-	toJSON: {
-		getters: true,
-		virtuals: true,
-	},
-	toObject: {
-		getters: true,
-		virtuals: true,
-	},
-})
+@ForFeature()
+@UseMongoosePlugin()
 export class ConvertRate extends BaseModel {
-	@Prop({
-		type: mongoose.Schema.Types.ObjectId,
-		ref: Currency.name,
+	@prop({
+		ref: Currency,
 		required: true,
+		autopopulate: true,
 	})
 	@AutoMap(() => Currency)
 	@Type(() => Currency)
 	fromCurrency: Ref<Currency>;
 
-	@Prop({
-		type: mongoose.Schema.Types.ObjectId,
-		ref: Currency.name,
+	@prop({
+		ref: Currency,
 		required: true,
+		autopopulate: true,
 	})
 	@AutoMap(() => Currency)
 	@Type(() => Currency)
 	toCurrency: Ref<Currency>;
 
-	@Prop({
-		type: Number,
+	@prop({
 		required: true,
 	})
 	@AutoMap()

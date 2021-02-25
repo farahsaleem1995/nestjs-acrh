@@ -1,14 +1,16 @@
 import { AutoMap } from '@automapper/classes';
-import { IsNumber } from 'class-validator';
-import { Schema } from 'mongoose';
-import { StringObjectId } from 'src/data/decorators';
+import { IsMongoId, IsNumber, IsString } from 'class-validator';
 
 export class CreateConvertRateDto {
-	@StringObjectId()
-	fromCurrency: Schema.Types.ObjectId;
+	@AutoMap()
+	@IsString()
+	@IsMongoId()
+	fromCurrency: string;
 
-	@StringObjectId()
-	toCurrency: Schema.Types.ObjectId;
+	@AutoMap()
+	@IsString()
+	@IsMongoId()
+	toCurrency: string;
 
 	@AutoMap()
 	@IsNumber()

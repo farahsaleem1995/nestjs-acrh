@@ -3,12 +3,12 @@ import { AutomapperModule } from '@automapper/nestjs';
 import { classes } from '@automapper/classes';
 import { CurrenciesModule } from './currencies/currencies.module';
 import { ConvertRatesModule } from './convert-rates/convert-rates.module';
-import { MongooseModule } from '@nestjs/mongoose';
 import { DataModule } from './data/data.module';
+import { TypegooseModule } from 'nestjs-typegoose';
 
 @Module({
 	imports: [
-		MongooseModule.forRoot('mongodb://localhost:27017/new-arch', {
+		TypegooseModule.forRoot('mongodb://localhost:27017/new-arch', {
 			useFindAndModify: false,
 			useNewUrlParser: true,
 			useUnifiedTopology: true,

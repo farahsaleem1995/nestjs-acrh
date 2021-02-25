@@ -1,19 +1,30 @@
 import { AutoMap } from '@automapper/classes';
-import { Prop } from '@nestjs/mongoose';
-import { Expose } from 'class-transformer';
-import { Document } from 'mongoose';
+import { modelOptions, prop, Severity } from '@typegoose/typegoose';
 
-export type BaseDocument<TModel> = TModel & Document;
-
+@modelOptions({
+	options: { allowMixed: Severity.ALLOW },
+	schemaOptions: {
+		timestamps: true,
+		id: true,
+		toJSON: {
+			getters: true,
+			virtuals: true,
+		},
+		toObject: {
+			getters: true,
+			virtuals: true,
+		},
+	},
+})
 export abstract class BaseModel {
 	@AutoMap()
 	id?: string;
 
-	@Prop()
+	@prop()
 	@AutoMap()
 	createdAt?: Date;
 
-	@Prop()
+	@prop()
 	@AutoMap()
 	updatedAt?: Date;
 }

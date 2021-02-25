@@ -1,28 +1,39 @@
 import { Injectable, InternalServerErrorException, Scope } from '@nestjs/common';
-import { plainToClass, ClassConstructor } from 'class-transformer';
+import { DocumentType } from '@typegoose/typegoose';
 import { MongoError } from 'mongodb';
-import { Types, Model, UpdateQuery, FilterQuery, Query } from 'mongoose';
+import {
+	Types,
+	UpdateQuery,
+	FilterQuery,
+	DocumentQuery,
+	QueryFindOneAndUpdateOptions,
+	CreateQuery,
+	Query,
+} from 'mongoose';
 import { BaseModel } from '../models';
-import { BaseDocument, DataQuery, ModelRefs } from '../types';
+import { DataQuery, ModelType } from '../types';
+
+type QueryList<T extends BaseModel> = DocumentQuery<Array<DocumentType<T>>, DocumentType<T>>;
+type QueryItem<T extends BaseModel> = DocumentQuery<DocumentType<T>, DocumentType<T>>;
+
+interface IQueryOptions {
+	lean?: boolean;
+	autopopulate?: boolean;
+}
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class BaseRepository<TModel extends BaseModel> {
-	private _modelType: ClassConstructor<TModel>;
-	private _model: Model<BaseDocument<TModel>>;
+	private _model: ModelType<TModel>;
 
-	setModel(model: Model<BaseDocument<TModel>>): void {
+	public setModel(model: ModelType<TModel>): void {
 		this._model = model;
 	}
 
-	getModelName(): string {
+	public getModelName(): string {
 		return this._model.modelName;
 	}
 
-	createModel(doc?: Partial<TModel>): BaseDocument<TModel> {
-		return new this._model(doc);
-	}
-
-	async findAll(query: DataQuery<TModel> = {}, refs: ModelRefs<TModel> = {}): Promise<TModel[]> {
+	public async findAll(query: DataQuery<TModel> = {}): Promise<TModel[]> {
 		const { filter, sort, paginate } = query;
 		const sortObject = sort ? { [sort.key]: sort.direction } : {};
 		const skip =
@@ -30,117 +41,192 @@ export class BaseRepository<TModel extends BaseModel> {
 		const limit = paginate?.pageSize ? paginate.pageSize : 10;
 
 		try {
-			const query = this._model
-				.find(<any>filter)
+			const query = this._findAll(filter, { autopopulate: true, lean: true })
 				.sort(sortObject)
 				.skip(skip)
 				.limit(limit);
 
-			const model = await this._populateQueryRefs(query, refs);
+			const model = await query.exec();
 
-			return this._toClassArray(model);
+			return model;
 		} catch (e) {
 			BaseRepository._throwMongoError(e);
 		}
 	}
 
-	async findOne(filter: FilterQuery<TModel>, refs: ModelRefs<TModel> = {}): Promise<TModel> {
+	public async findOne(filter: FilterQuery<TModel>): Promise<TModel> {
 		try {
-			const query = this._model.findOne(<any>filter);
+			const query = this._findOne(<any>filter);
 
-			const model = await this._populateQueryRefs(query, refs);
+			const model = await query.exec();
 
-			return this._toClassObject(model.toObject());
+			return model;
 		} catch (e) {
 			BaseRepository._throwMongoError(e);
 		}
 	}
 
-	async findById(id: string, refs: ModelRefs<TModel> = {}): Promise<TModel> {
+	public async findById(id: string): Promise<TModel> {
 		try {
-			const query = this._model.findById(BaseRepository._toObjectId(id));
+			const query = this._findById(id);
 
-			const model = await this._populateQueryRefs(query, refs);
+			const model = await query.exec();
 
-			return this._toClassObject(model.toObject());
+			return model;
 		} catch (e) {
 			BaseRepository._throwMongoError(e);
 		}
 	}
 
-	async create(item: Partial<TModel>): Promise<TModel> {
-		const doc = this.createModel(item);
-
+	public async create(item: CreateQuery<TModel>): Promise<TModel> {
 		try {
-			const model = await doc.save();
-
-			return this._toClassObject(model.toObject());
+			return await this._model.create(item);
 		} catch (e) {
 			BaseRepository._throwMongoError(e);
 		}
 	}
 
-	async update(
-		id: string,
-		item: UpdateQuery<BaseDocument<TModel>>,
-		refs: ModelRefs<TModel> = {},
+	public async update(
+		item: UpdateQuery<DocumentType<TModel>>,
+		options?: IQueryOptions,
 	): Promise<TModel> {
 		try {
-			const query = this._model.findByIdAndUpdate(BaseRepository._toObjectId(id), item, {
+			const query = this._model
+				.findByIdAndUpdate(Types.ObjectId(item.id), { $set: item } as any, {
+					omitUndefined: true,
+					new: true,
+				})
+				.setOptions(BaseRepository._getQueryOptions(options));
+
+			const model = await query.exec();
+
+			return model;
+		} catch (e) {
+			BaseRepository._throwMongoError(e);
+		}
+	}
+
+	public async updateById(
+		id: string,
+		updateQuery: UpdateQuery<DocumentType<TModel>>,
+		updateOptions: QueryFindOneAndUpdateOptions & { multi?: boolean } = {},
+		options?: IQueryOptions,
+	): Promise<TModel> {
+		const query = this._update(
+			{ _id: Types.ObjectId(id) as any },
+			updateQuery,
+			updateOptions,
+			options,
+		);
+
+		const model = await query.exec();
+
+		return model;
+	}
+
+	public async updateByFilter(
+		filter: FilterQuery<DocumentType<TModel>> = {},
+		updateQuery: UpdateQuery<DocumentType<TModel>>,
+		updateOptions: QueryFindOneAndUpdateOptions = {},
+		options?: IQueryOptions,
+	): Promise<TModel> {
+		const query = this._model
+			.findOneAndUpdate(filter, updateQuery, {
+				...Object.assign({ omitUndefined: true }, updateOptions),
 				new: true,
-			});
+			})
+			.setOptions(BaseRepository._getQueryOptions(options));
 
-			const model = await this._populateQueryRefs(query, refs);
+		const model = await query.exec();
 
-			return this._toClassObject(model.toObject());
-		} catch (e) {
-			BaseRepository._throwMongoError(e);
-		}
+		return model;
 	}
 
-	async delete(id: string, refs: ModelRefs<TModel> = {}): Promise<TModel> {
+	public async deleteById(id: string, options?: IQueryOptions): Promise<TModel> {
 		try {
-			const query = this._model.findByIdAndDelete(BaseRepository._toObjectId(id));
+			const query = this._delete({ _id: Types.ObjectId(id) as any }, options);
 
-			const model = await this._populateQueryRefs(query, refs);
+			const model = await query.exec();
 
-			return this._toClassObject(model.toObject());
+			return model;
 		} catch (e) {
 			BaseRepository._throwMongoError(e);
 		}
 	}
 
-	private async _populateQueryRefs<
-		TResultType extends BaseDocument<TModel> | BaseDocument<TModel>[]
-	>(
-		query: Query<TResultType, BaseDocument<TModel>>,
-		refs: ModelRefs<TModel>,
-	): Promise<TResultType> {
-		const refKeys = this._getRefKeys(refs);
-
-		refKeys.forEach((key) => {
-			query = query.populate(key);
-		});
-
-		return await query.exec();
+	public async count(filter: FilterQuery<DocumentType<TModel>> = {}): Promise<number> {
+		try {
+			return await this._count(filter);
+		} catch (e) {
+			BaseRepository._throwMongoError(e);
+		}
 	}
 
-	private _getRefKeys(refs: any): string[] {
-		const keys: string[] = [];
+	public async exists(filter: FilterQuery<DocumentType<TModel>> = {}): Promise<boolean> {
+		try {
+			return await this._model.exists(filter);
+		} catch (e) {
+			BaseRepository._throwMongoError(e);
+		}
+	}
 
-		Object.entries(refs).forEach(([refKey, refValue]) => {
-			if (refValue === true) {
-				keys.push(refKey);
-			} else if (refValue !== false) {
-				const subKeys = this._getRefKeys(refValue);
+	private _findAll(filter: any = {}, options?: IQueryOptions): QueryList<TModel> {
+		return this._model.find(filter).setOptions(BaseRepository._getQueryOptions(options));
+	}
 
-				subKeys.forEach((subKey) => {
-					keys.push(`${refKey}.${subKey}`);
-				});
-			}
-		});
+	private _findOne(filter: any = {}, options?: IQueryOptions): QueryItem<TModel> {
+		return this._model.findOne(filter).setOptions(BaseRepository._getQueryOptions(options));
+	}
 
-		return keys;
+	private _findById(id: string, options?: IQueryOptions): QueryItem<TModel> {
+		return this._model
+			.findById(BaseRepository._toObjectId(id))
+			.setOptions(BaseRepository._getQueryOptions(options));
+	}
+
+	private _update(
+		filter: FilterQuery<DocumentType<TModel>> = {},
+		updateQuery: UpdateQuery<DocumentType<TModel>>,
+		updateOptions: QueryFindOneAndUpdateOptions = {},
+		options?: IQueryOptions,
+	): QueryItem<TModel> {
+		return this._model
+			.findOneAndUpdate(filter, updateQuery, {
+				...Object.assign({ omitUndefined: true }, updateOptions),
+				new: true,
+			})
+			.setOptions(BaseRepository._getQueryOptions(options));
+	}
+
+	private _delete(
+		filter: FilterQuery<DocumentType<TModel>> = {},
+		options?: IQueryOptions,
+	): QueryItem<TModel> {
+		return this._model
+			.findOneAndDelete(filter)
+			.setOptions(BaseRepository._getQueryOptions(options));
+	}
+
+	private _count(filter: FilterQuery<DocumentType<TModel>> = {}): Query<number> {
+		return this._model.count(filter);
+	}
+
+	private static get defaultOptions(): IQueryOptions {
+		return { lean: true, autopopulate: true };
+	}
+
+	private static _getQueryOptions(options?: IQueryOptions) {
+		const mergedOptions = {
+			...BaseRepository.defaultOptions,
+			...(options || {}),
+		};
+		const option = mergedOptions.lean ? { virtuals: true } : null;
+
+		if (option && mergedOptions.autopopulate) {
+			option['autopopulate'] = true;
+		}
+
+		return { lean: option, autopopulate: mergedOptions.autopopulate };
 	}
 
 	private static _throwMongoError(err: MongoError): void {
@@ -153,13 +239,5 @@ export class BaseRepository<TModel extends BaseModel> {
 		} catch (e) {
 			this._throwMongoError(e);
 		}
-	}
-
-	private _toClassObject(obj: any): TModel {
-		return plainToClass(this._modelType, obj, { enableCircularCheck: true });
-	}
-
-	private _toClassArray(obj: any[]): TModel[] {
-		return plainToClass(this._modelType, obj, { enableCircularCheck: true });
 	}
 }

@@ -1,15 +1,14 @@
 import { Provider } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { ModelType } from '@typegoose/typegoose/lib/types';
 import { getRepositoryToken } from '.';
 import { repositoryProviderModelNames } from '../decorators';
 import { BaseModel } from '../models';
 import { BaseRepository } from '../repositories';
-import { BaseDocument } from '../types';
 
 function repositoryFactory<TModel extends BaseModel>(
 	repository: BaseRepository<TModel>,
-	model: Model<BaseDocument<TModel>>,
+	model: ModelType<TModel>,
 ) {
 	repository.setModel(model);
 
@@ -21,7 +20,7 @@ function createRepositoryProvider<TModel extends BaseModel>(
 ): Provider<BaseRepository<TModel>> {
 	return {
 		provide: getRepositoryToken(modelName),
-		useFactory: (repository: BaseRepository<TModel>, model: Model<BaseDocument<TModel>>) => {
+		useFactory: (repository: BaseRepository<TModel>, model: ModelType<TModel>) => {
 			return repositoryFactory<TModel>(repository, model);
 		},
 		inject: [BaseRepository, getModelToken(modelName)],
