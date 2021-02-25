@@ -1,6 +1,6 @@
 import { Expose, Transform } from 'class-transformer';
 import { isNotEmptyObject, IsOptional, IsString } from 'class-validator';
-import { QueryProps } from '../enums';
+import { QueryProps } from '../constants';
 import { IQueryOption } from '../interfaces';
 
 export function QueryStringFilter(option: IQueryOption = {}) {

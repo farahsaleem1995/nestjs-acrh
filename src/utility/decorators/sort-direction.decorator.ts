@@ -1,6 +1,6 @@
 import { Expose, Transform } from 'class-transformer';
 import { IsIn, IsOptional, IsString } from 'class-validator';
-import { QueryProps } from '../enums';
+import { QueryProps } from '../constants';
 import { IQueryOption } from '../interfaces';
 
 export function QuerySortDirection(option: IQueryOption = {}) {

@@ -1,6 +1,6 @@
 import { Expose, Transform } from 'class-transformer';
 import { IsIn, IsOptional, IsString } from 'class-validator';
-import { QueryProps } from '../enums';
+import { QueryProps } from '../constants';
 import { IQuerySortKeyOption } from '../interfaces';
 
 export function QuerySortKey(option: IQuerySortKeyOption) {

@@ -1,2 +1,2 @@
 export * from './query-options.interface';
-export * from './query-sort-key-options.decorator';
+export * from './query-sort-key-options.interface';

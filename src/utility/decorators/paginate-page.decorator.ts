@@ -1,6 +1,6 @@
 import { Expose, Transform } from 'class-transformer';
 import { IsInt, IsNumber, IsOptional, Max, Min } from 'class-validator';
-import { QueryProps } from '../enums';
+import { QueryProps } from '../constants';
 import { IQueryOption } from '../interfaces';
 
 export function QueryPaginatePage(option: IQueryOption = {}) {
