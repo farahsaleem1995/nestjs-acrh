@@ -1,7 +1,7 @@
 import { Expose, Transform } from 'class-transformer';
 import { isNotEmptyObject, IsOptional, IsString } from 'class-validator';
-import { QueryProps } from '../../common/constants';
-import { IQueryOption } from '../interceptors';
+import { QueryPropsAndOptions } from '../constants';
+import { IQueryOption } from '../interfaces';
 
 export function QueryStringFilter(option: IQueryOption = {}) {
 	const { key } = option;
@@ -13,16 +13,16 @@ export function QueryStringFilter(option: IQueryOption = {}) {
 		IsString()(target, propertyKey);
 
 		Transform(({ obj, value, key }) => {
-			if (!obj[QueryProps.FilterProp]) {
-				obj[QueryProps.FilterProp] = {};
+			if (!obj[QueryPropsAndOptions.FilterProp]) {
+				obj[QueryPropsAndOptions.FilterProp] = {};
 			}
 
 			const filter = value
 				? { $regex: new RegExp(`.*${value.split('').join('.*')}.*`, 'i') }
 				: {};
 
-			if (!obj[QueryProps.FilterProp][key] && isNotEmptyObject(filter)) {
-				obj[QueryProps.FilterProp][key] = filter;
+			if (!obj[QueryPropsAndOptions.FilterProp][key] && isNotEmptyObject(filter)) {
+				obj[QueryPropsAndOptions.FilterProp][key] = filter;
 			}
 
 			delete obj[exposedKey];

@@ -1,7 +1,7 @@
 import { Expose, Transform } from 'class-transformer';
 import { IsIn, IsOptional, IsString } from 'class-validator';
-import { QueryProps } from '../../common/constants';
-import { IQuerySortKeyOption } from '../interceptors';
+import { QueryPropsAndOptions } from '../constants';
+import { IQuerySortKeyOption } from '../interfaces';
 
 export function QuerySortKey(option: IQuerySortKeyOption) {
 	const { key, allowedProperties } = option;
@@ -14,12 +14,12 @@ export function QuerySortKey(option: IQuerySortKeyOption) {
 		IsIn(allowedProperties)(target, propertyKey);
 
 		Transform(({ obj, value }) => {
-			if (!obj[QueryProps.SortProp]) {
-				obj[QueryProps.SortProp] = {};
+			if (!obj[QueryPropsAndOptions.SortProp]) {
+				obj[QueryPropsAndOptions.SortProp] = {};
 			}
 
-			if (!obj[QueryProps.SortProp][QueryProps.SortKeyProp] && value) {
-				obj[QueryProps.SortProp][QueryProps.SortKeyProp] = value;
+			if (!obj[QueryPropsAndOptions.SortProp][QueryPropsAndOptions.SortKeyProp] && value) {
+				obj[QueryPropsAndOptions.SortProp][QueryPropsAndOptions.SortKeyProp] = value;
 			}
 
 			delete obj[exposedKey];

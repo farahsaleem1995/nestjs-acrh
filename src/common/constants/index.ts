@@ -1,1 +1,1 @@
-export * from './query-prop.enum';
+export * from './query-prop-and-options.enum';

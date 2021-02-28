@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from 'src/data/decorators';
 import { BaseRepository } from 'src/data/repositories';
-import { DataQuery } from 'src/data/types';
+import { FindAllQuery } from 'src/data/types';
 import { CreateCurrencyDto, UpdateCurrencyDto } from '../dtos';
 import { Currency } from '../models';
 
 @Injectable()
 export class CurrenciesService {
 	constructor(
-		@InjectRepository(Currency.name)
+		@InjectRepository(Currency)
 		private readonly currenciesRepository: BaseRepository<Currency>,
 	) {}
 
-	async getAll(query: DataQuery<Currency> = {}): Promise<Currency[]> {
+	async getAll(query: FindAllQuery<Currency> = {}): Promise<Currency[]> {
 		return await this.currenciesRepository.findAll(query);
 	}
 

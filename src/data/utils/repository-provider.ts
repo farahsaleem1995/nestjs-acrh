@@ -2,7 +2,7 @@ import { Provider } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { ModelType } from '@typegoose/typegoose/lib/types';
 import { getRepositoryToken } from '.';
-import { repositoryProviderModelNames } from '../decorators';
+import { repositoryProviderModelTokens } from '../decorators';
 import { BaseModel } from '../models';
 import { BaseRepository } from '../repositories';
 
@@ -27,8 +27,8 @@ function createRepositoryProvider<TModel extends BaseModel>(
 	};
 }
 
-export function createRepositoryProviders(): Array<Provider<BaseRepository<BaseModel>>> {
-	return repositoryProviderModelNames.map((modelName) => {
+export function createRepositoryProviders(): Provider<BaseRepository<BaseModel>>[] {
+	return repositoryProviderModelTokens.map((modelName) => {
 		return createRepositoryProvider(modelName);
 	});
 }

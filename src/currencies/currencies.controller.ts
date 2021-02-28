@@ -1,21 +1,21 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
-import { MapArrayResponse, MapResponse } from 'src/common/decorators';
-import { InputValidationPipe } from 'src/data/pipes';
-import { DataQuery } from 'src/data/types';
-import { QueryTransform } from 'src/common/pipes';
-import { CurrencyDto, CreateCurrencyDto, UpdateCurrencyDto } from './dtos';
-import { CurrencyQueryDto } from './dtos/currency-query.dto';
+import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { MapArrayResponse, MapResponse, TransformQuery, ValidateBody } from 'src/common/decorators';
+import { CurrencyDto, CreateCurrencyDto, UpdateCurrencyDto, CurrencyQueryDto } from './dtos';
 import { Currency } from './models';
-import { CurrenciesService } from './services/currencies.service';
+import { FindAllQuery } from 'src/data/types';
+import { BaseService } from 'src/common/services';
+import { InjectService } from 'src/common/decorators/inject-service.decorator';
 
 @Controller('currencies')
 export class CurrenciesController {
-	constructor(private readonly currenciesService: CurrenciesService) {}
+	constructor(
+		@InjectService(Currency) private readonly currenciesService: BaseService<Currency>,
+	) {}
 
 	@Get()
 	@MapArrayResponse(CurrencyDto, Currency)
 	async getAll(
-		@Query(QueryTransform(CurrencyQueryDto)) query: DataQuery<Currency>,
+		@TransformQuery(CurrencyQueryDto) query: FindAllQuery<Currency>,
 	): Promise<Currency[]> {
 		return await this.currenciesService.getAll(query);
 	}
@@ -36,7 +36,7 @@ export class CurrenciesController {
 	@MapResponse(CurrencyDto, Currency)
 	async update(
 		@Param('id') id: string,
-		@Body(new InputValidationPipe(UpdateCurrencyDto)) updateDto: UpdateCurrencyDto,
+		@ValidateBody(UpdateCurrencyDto) updateDto: UpdateCurrencyDto,
 	): Promise<Currency> {
 		return await this.currenciesService.update(id, updateDto);
 	}

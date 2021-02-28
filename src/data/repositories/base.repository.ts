@@ -7,11 +7,17 @@ import {
 	FilterQuery,
 	DocumentQuery,
 	QueryFindOneAndUpdateOptions,
-	CreateQuery,
 	Query,
 } from 'mongoose';
 import { BaseModel } from '../models';
-import { DataQuery, ModelType } from '../types';
+import {
+	CreateOneQuery,
+	FindAllQuery,
+	FindOneQuery,
+	ModelType,
+	UpdateOneQuery,
+	UpdateOneQueryOptions,
+} from '../types';
 
 type QueryList<T extends BaseModel> = DocumentQuery<Array<DocumentType<T>>, DocumentType<T>>;
 type QueryItem<T extends BaseModel> = DocumentQuery<DocumentType<T>, DocumentType<T>>;
@@ -33,7 +39,7 @@ export class BaseRepository<TModel extends BaseModel> {
 		return this._model.modelName;
 	}
 
-	public async findAll(query: DataQuery<TModel> = {}): Promise<TModel[]> {
+	public async findAll(query: FindAllQuery<TModel> = {}): Promise<TModel[]> {
 		const { filter, sort, paginate } = query;
 		const sortObject = sort ? { [sort.key]: sort.direction } : {};
 		const skip =
@@ -54,7 +60,7 @@ export class BaseRepository<TModel extends BaseModel> {
 		}
 	}
 
-	public async findOne(filter: FilterQuery<TModel>): Promise<TModel> {
+	public async findOne(filter: FindOneQuery<TModel>): Promise<TModel> {
 		try {
 			const query = this._findOne(<any>filter);
 
@@ -78,7 +84,7 @@ export class BaseRepository<TModel extends BaseModel> {
 		}
 	}
 
-	public async create(item: CreateQuery<TModel>): Promise<TModel> {
+	public async create(item: CreateOneQuery<TModel>): Promise<TModel> {
 		try {
 			return await this._model.create(item);
 		} catch (e) {
@@ -87,12 +93,13 @@ export class BaseRepository<TModel extends BaseModel> {
 	}
 
 	public async update(
-		item: UpdateQuery<DocumentType<TModel>>,
+		updateQuery: UpdateOneQuery<TModel>,
 		options?: IQueryOptions,
 	): Promise<TModel> {
 		try {
+			const { item } = updateQuery;
 			const query = this._model
-				.findByIdAndUpdate(Types.ObjectId(item.id), { $set: item } as any, {
+				.findByIdAndUpdate(Types.ObjectId(item.id), { $set: updateQuery } as any, {
 					omitUndefined: true,
 					new: true,
 				})
@@ -108,13 +115,15 @@ export class BaseRepository<TModel extends BaseModel> {
 
 	public async updateById(
 		id: string,
-		updateQuery: UpdateQuery<DocumentType<TModel>>,
-		updateOptions: QueryFindOneAndUpdateOptions & { multi?: boolean } = {},
+		updateQuery: UpdateOneQuery<TModel>,
+		updateOptions: UpdateOneQueryOptions = {},
 		options?: IQueryOptions,
 	): Promise<TModel> {
+		const { item } = updateQuery;
+
 		const query = this._update(
 			{ _id: Types.ObjectId(id) as any },
-			updateQuery,
+			item as any,
 			updateOptions,
 			options,
 		);
@@ -125,17 +134,12 @@ export class BaseRepository<TModel extends BaseModel> {
 	}
 
 	public async updateByFilter(
-		filter: FilterQuery<DocumentType<TModel>> = {},
-		updateQuery: UpdateQuery<DocumentType<TModel>>,
-		updateOptions: QueryFindOneAndUpdateOptions = {},
+		filter: FindOneQuery<TModel> = {},
+		updateQuery: UpdateOneQuery<TModel>,
+		updateOptions: UpdateOneQueryOptions = {},
 		options?: IQueryOptions,
 	): Promise<TModel> {
-		const query = this._model
-			.findOneAndUpdate(filter, updateQuery, {
-				...Object.assign({ omitUndefined: true }, updateOptions),
-				new: true,
-			})
-			.setOptions(BaseRepository._getQueryOptions(options));
+		const query = this._update(filter, updateQuery as any, updateOptions, options);
 
 		const model = await query.exec();
 
@@ -154,7 +158,7 @@ export class BaseRepository<TModel extends BaseModel> {
 		}
 	}
 
-	public async count(filter: FilterQuery<DocumentType<TModel>> = {}): Promise<number> {
+	public async count(filter: FindOneQuery<TModel> = {}): Promise<number> {
 		try {
 			return await this._count(filter);
 		} catch (e) {
@@ -162,7 +166,7 @@ export class BaseRepository<TModel extends BaseModel> {
 		}
 	}
 
-	public async exists(filter: FilterQuery<DocumentType<TModel>> = {}): Promise<boolean> {
+	public async exists(filter: FindOneQuery<TModel> = {}): Promise<boolean> {
 		try {
 			return await this._model.exists(filter);
 		} catch (e) {
@@ -185,7 +189,7 @@ export class BaseRepository<TModel extends BaseModel> {
 	}
 
 	private _update(
-		filter: FilterQuery<DocumentType<TModel>> = {},
+		filter: FindOneQuery<TModel> = {},
 		updateQuery: UpdateQuery<DocumentType<TModel>>,
 		updateOptions: QueryFindOneAndUpdateOptions = {},
 		options?: IQueryOptions,

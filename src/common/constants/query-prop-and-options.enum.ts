@@ -1,11 +1,15 @@
-export enum QueryProps {
+export enum QueryPropsAndOptions {
 	FilterProp = 'filter',
 	SortProp = 'sort',
 	SortKeyProp = 'key',
 	SortDirectionProp = 'direction',
+	SortAscendingValue = 1,
+	SortDescendingValue = -1,
 	PaginateProp = 'paginate',
 	PaginatePageProp = 'page',
 	PaginatePageSizeProp = 'pageSize',
-	SortAscendingValue = 1,
-	SortDescendingValue = -1,
+	PaginatePageSizeMax = 100,
+	PaginatePageSizeMin = 5,
+	PaginatePageMax = 100000,
+	PaginatePageMin = 1,
 }

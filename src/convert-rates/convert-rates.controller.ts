@@ -1,24 +1,32 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { MapArrayResponse, MapResponse } from 'src/common/decorators';
+import { InjectService } from 'src/common/decorators/inject-service.decorator';
+import { BaseService } from 'src/common/services';
 import { ConvertRateDto } from './dtos';
 import { CreateConvertRateDto } from './dtos/create-convert-rate.dto';
-import { ConvertRatesService } from './services';
+import { ConvertRate } from './models';
 
 @Controller('convert-rates')
 export class ConvertRatesController {
-	constructor(private readonly convertRateService: ConvertRatesService) {}
+	constructor(
+		@InjectService(ConvertRate) private readonly convertRatesService: BaseService<ConvertRate>,
+	) {}
 
 	@Get()
-	async getAll(): Promise<ConvertRateDto[]> {
-		return this.convertRateService.getAll();
+	@MapArrayResponse(ConvertRateDto, ConvertRate)
+	async getAll(): Promise<ConvertRate[]> {
+		return this.convertRatesService.getAll({});
 	}
 
 	@Post()
-	async create(@Body() createDto: CreateConvertRateDto): Promise<ConvertRateDto> {
-		return this.convertRateService.create(createDto);
+	@MapResponse(ConvertRateDto, ConvertRate)
+	async create(@Body() createDto: CreateConvertRateDto): Promise<ConvertRate> {
+		return this.convertRatesService.create(createDto);
 	}
 
 	@Get(':id')
-	async getById(@Param('id') id: string): Promise<ConvertRateDto> {
-		return this.convertRateService.getById(id);
+	@MapResponse(ConvertRateDto, ConvertRate)
+	async getById(@Param('id') id: string): Promise<ConvertRate> {
+		return this.convertRatesService.getById(id);
 	}
 }

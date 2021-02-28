@@ -1,7 +1,7 @@
 import { Expose, Transform } from 'class-transformer';
 import { IsIn, IsOptional, IsString } from 'class-validator';
-import { QueryProps } from '../../common/constants';
-import { IQueryOption } from '../interceptors';
+import { QueryPropsAndOptions } from '../constants';
+import { IQueryOption } from '../interfaces';
 
 export function QuerySortDirection(option: IQueryOption = {}) {
 	const { key } = option;
@@ -16,16 +16,19 @@ export function QuerySortDirection(option: IQueryOption = {}) {
 		Transform(({ obj, value }) => {
 			value = value || 'false';
 
-			if (!obj[QueryProps.SortProp]) {
-				obj[QueryProps.SortProp] = {};
+			if (!obj[QueryPropsAndOptions.SortProp]) {
+				obj[QueryPropsAndOptions.SortProp] = {};
 			}
 
-			if (!obj[QueryProps.SortProp][QueryProps.SortDirectionProp] && value) {
-				obj[QueryProps.SortProp][
-					QueryProps.SortDirectionProp
+			if (
+				!obj[QueryPropsAndOptions.SortProp][QueryPropsAndOptions.SortDirectionProp] &&
+				value
+			) {
+				obj[QueryPropsAndOptions.SortProp][
+					QueryPropsAndOptions.SortDirectionProp
 				] = sortDirectionPropertyTruthyOption.includes(value)
-					? QueryProps.SortAscendingValue
-					: QueryProps.SortDescendingValue;
+					? QueryPropsAndOptions.SortAscendingValue
+					: QueryPropsAndOptions.SortDescendingValue;
 			}
 
 			delete obj[exposedKey];
