@@ -1,13 +1,17 @@
 import { Injectable, Scope } from '@nestjs/common';
 import { BaseModel } from 'src/data/models';
-import { BaseRepository } from 'src/data/repositories';
+import { Repository } from 'src/data/repositories';
 import { CreateOneParamDto, FindAllParamDto, UpdateOneParamDto } from '../types';
 
 @Injectable({ scope: Scope.TRANSIENT })
-export class BaseService<TModel extends BaseModel> {
-	private _repository: BaseRepository<TModel>;
+export class Service<TModel extends BaseModel> {
+	private _repository: Repository<TModel>;
 
-	setRepository(repository: BaseRepository<TModel>): void {
+	setRepository(repository: Repository<TModel>): void {
+		if (this._repository) {
+			throw Error('Repository reset is not allowed');
+		}
+
 		this._repository = repository;
 	}
 

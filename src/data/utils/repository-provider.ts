@@ -4,10 +4,10 @@ import { ModelType } from '@typegoose/typegoose/lib/types';
 import { getRepositoryToken } from '.';
 import { repositoryProviderModelTokens } from '../decorators';
 import { BaseModel } from '../models';
-import { BaseRepository } from '../repositories';
+import { Repository } from '../repositories';
 
 function repositoryFactory<TModel extends BaseModel>(
-	repository: BaseRepository<TModel>,
+	repository: Repository<TModel>,
 	model: ModelType<TModel>,
 ) {
 	repository.setModel(model);
@@ -17,17 +17,17 @@ function repositoryFactory<TModel extends BaseModel>(
 
 function createRepositoryProvider<TModel extends BaseModel>(
 	modelName: string,
-): Provider<BaseRepository<TModel>> {
+): Provider<Repository<TModel>> {
 	return {
 		provide: getRepositoryToken(modelName),
-		useFactory: (repository: BaseRepository<TModel>, model: ModelType<TModel>) => {
+		useFactory: (repository: Repository<TModel>, model: ModelType<TModel>) => {
 			return repositoryFactory<TModel>(repository, model);
 		},
-		inject: [BaseRepository, getModelToken(modelName)],
+		inject: [Repository, getModelToken(modelName)],
 	};
 }
 
-export function createRepositoryProviders(): Provider<BaseRepository<BaseModel>>[] {
+export function createRepositoryProviders(): Provider<Repository<BaseModel>>[] {
 	return repositoryProviderModelTokens.map((modelName) => {
 		return createRepositoryProvider(modelName);
 	});

@@ -1,7 +1,7 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { ClassConstructor } from 'class-transformer';
 import { BaseModel } from 'src/data/models';
-import { BaseService } from './services';
+import { Service } from './services';
 import { createServiceProviders } from './utils/service-providers';
 
 @Module({})
@@ -11,8 +11,8 @@ export class CommonModule {
 
 		const module: DynamicModule = {
 			module: CommonModule,
-			providers: [BaseService, ...serviceProviders],
-			exports: [BaseService, ...serviceProviders],
+			providers: [Service, ...serviceProviders],
+			exports: [Service, ...serviceProviders],
 		};
 
 		return module;

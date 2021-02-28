@@ -28,15 +28,15 @@ interface IQueryOptions {
 }
 
 @Injectable({ scope: Scope.TRANSIENT })
-export class BaseRepository<TModel extends BaseModel> {
+export class Repository<TModel extends BaseModel> {
 	private _model: ModelType<TModel>;
 
 	public setModel(model: ModelType<TModel>): void {
-		this._model = model;
-	}
+		if (this._model) {
+			throw Error('Model reset is not allowed');
+		}
 
-	public getModelName(): string {
-		return this._model.modelName;
+		this._model = model;
 	}
 
 	public async findAll(query: FindAllQuery<TModel> = {}): Promise<TModel[]> {
@@ -56,7 +56,7 @@ export class BaseRepository<TModel extends BaseModel> {
 
 			return model;
 		} catch (e) {
-			BaseRepository._throwMongoError(e);
+			Repository._throwMongoError(e);
 		}
 	}
 
@@ -68,7 +68,7 @@ export class BaseRepository<TModel extends BaseModel> {
 
 			return model;
 		} catch (e) {
-			BaseRepository._throwMongoError(e);
+			Repository._throwMongoError(e);
 		}
 	}
 
@@ -80,7 +80,7 @@ export class BaseRepository<TModel extends BaseModel> {
 
 			return model;
 		} catch (e) {
-			BaseRepository._throwMongoError(e);
+			Repository._throwMongoError(e);
 		}
 	}
 
@@ -88,7 +88,7 @@ export class BaseRepository<TModel extends BaseModel> {
 		try {
 			return await this._model.create(item);
 		} catch (e) {
-			BaseRepository._throwMongoError(e);
+			Repository._throwMongoError(e);
 		}
 	}
 
@@ -103,13 +103,13 @@ export class BaseRepository<TModel extends BaseModel> {
 					omitUndefined: true,
 					new: true,
 				})
-				.setOptions(BaseRepository._getQueryOptions(options));
+				.setOptions(Repository._getQueryOptions(options));
 
 			const model = await query.exec();
 
 			return model;
 		} catch (e) {
-			BaseRepository._throwMongoError(e);
+			Repository._throwMongoError(e);
 		}
 	}
 
@@ -154,7 +154,7 @@ export class BaseRepository<TModel extends BaseModel> {
 
 			return model;
 		} catch (e) {
-			BaseRepository._throwMongoError(e);
+			Repository._throwMongoError(e);
 		}
 	}
 
@@ -162,7 +162,7 @@ export class BaseRepository<TModel extends BaseModel> {
 		try {
 			return await this._count(filter);
 		} catch (e) {
-			BaseRepository._throwMongoError(e);
+			Repository._throwMongoError(e);
 		}
 	}
 
@@ -170,22 +170,22 @@ export class BaseRepository<TModel extends BaseModel> {
 		try {
 			return await this._model.exists(filter);
 		} catch (e) {
-			BaseRepository._throwMongoError(e);
+			Repository._throwMongoError(e);
 		}
 	}
 
 	private _findAll(filter: any = {}, options?: IQueryOptions): QueryList<TModel> {
-		return this._model.find(filter).setOptions(BaseRepository._getQueryOptions(options));
+		return this._model.find(filter).setOptions(Repository._getQueryOptions(options));
 	}
 
 	private _findOne(filter: any = {}, options?: IQueryOptions): QueryItem<TModel> {
-		return this._model.findOne(filter).setOptions(BaseRepository._getQueryOptions(options));
+		return this._model.findOne(filter).setOptions(Repository._getQueryOptions(options));
 	}
 
 	private _findById(id: string, options?: IQueryOptions): QueryItem<TModel> {
 		return this._model
-			.findById(BaseRepository._toObjectId(id))
-			.setOptions(BaseRepository._getQueryOptions(options));
+			.findById(Repository._toObjectId(id))
+			.setOptions(Repository._getQueryOptions(options));
 	}
 
 	private _update(
@@ -199,7 +199,7 @@ export class BaseRepository<TModel extends BaseModel> {
 				...Object.assign({ omitUndefined: true }, updateOptions),
 				new: true,
 			})
-			.setOptions(BaseRepository._getQueryOptions(options));
+			.setOptions(Repository._getQueryOptions(options));
 	}
 
 	private _delete(
@@ -208,7 +208,7 @@ export class BaseRepository<TModel extends BaseModel> {
 	): QueryItem<TModel> {
 		return this._model
 			.findOneAndDelete(filter)
-			.setOptions(BaseRepository._getQueryOptions(options));
+			.setOptions(Repository._getQueryOptions(options));
 	}
 
 	private _count(filter: FilterQuery<DocumentType<TModel>> = {}): Query<number> {
@@ -221,7 +221,7 @@ export class BaseRepository<TModel extends BaseModel> {
 
 	private static _getQueryOptions(options?: IQueryOptions) {
 		const mergedOptions = {
-			...BaseRepository.defaultOptions,
+			...Repository.defaultOptions,
 			...(options || {}),
 		};
 		const option = mergedOptions.lean ? { virtuals: true } : null;

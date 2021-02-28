@@ -1,6 +1,6 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
 import { mongooseFeatures } from './decorators';
-import { BaseRepository } from './repositories';
+import { Repository } from './repositories';
 import { createRepositoryProviders } from './utils';
 
 @Global()
@@ -12,8 +12,8 @@ export class DataCoreModule {
 		const module: DynamicModule = {
 			module: DataCoreModule,
 			imports: [...mongooseFeatures.map((feature) => feature.module)],
-			providers: [BaseRepository, ...repositoryProviders],
-			exports: [BaseRepository, ...repositoryProviders],
+			providers: [Repository, ...repositoryProviders],
+			exports: [Repository, ...repositoryProviders],
 		};
 
 		return module;

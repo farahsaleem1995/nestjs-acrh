@@ -1,3 +1,4 @@
+export * from './inject-service.decorator';
 export * from './map-response.decorator';
 export * from './paginate-page-size.decorator';
 export * from './paginate-page.decorator';

@@ -1,16 +1,19 @@
 import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
-import { MapArrayResponse, MapResponse, TransformQuery, ValidateBody } from 'src/common/decorators';
+import {
+	InjectService,
+	MapArrayResponse,
+	MapResponse,
+	TransformQuery,
+	ValidateBody,
+} from 'src/common/decorators';
 import { CurrencyDto, CreateCurrencyDto, UpdateCurrencyDto, CurrencyQueryDto } from './dtos';
 import { Currency } from './models';
 import { FindAllQuery } from 'src/data/types';
-import { BaseService } from 'src/common/services';
-import { InjectService } from 'src/common/decorators/inject-service.decorator';
+import { Service } from 'src/common/services';
 
 @Controller('currencies')
 export class CurrenciesController {
-	constructor(
-		@InjectService(Currency) private readonly currenciesService: BaseService<Currency>,
-	) {}
+	constructor(@InjectService(Currency) private readonly currenciesService: Service<Currency>) {}
 
 	@Get()
 	@MapArrayResponse(CurrencyDto, Currency)
