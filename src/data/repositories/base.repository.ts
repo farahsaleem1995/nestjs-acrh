@@ -1,5 +1,6 @@
 import { Injectable, InternalServerErrorException, Scope } from '@nestjs/common';
 import { DocumentType } from '@typegoose/typegoose';
+import { ClassConstructor, plainToClass } from 'class-transformer';
 import { MongoError } from 'mongodb';
 import {
 	Types,
@@ -30,13 +31,15 @@ interface IQueryOptions {
 @Injectable({ scope: Scope.TRANSIENT })
 export class Repository<TModel extends BaseModel> {
 	private _model: ModelType<TModel>;
+	private _modelCtr: ClassConstructor<TModel>;
 
-	public setModel(model: ModelType<TModel>): void {
+	public setModel(model: ModelType<TModel>, modelCtr: ClassConstructor<TModel>): void {
 		if (this._model) {
 			throw Error('Model reset is not allowed');
 		}
 
 		this._model = model;
+		this._modelCtr = modelCtr;
 	}
 
 	public async findAll(query: FindAllQuery<TModel> = {}): Promise<TModel[]> {
@@ -52,9 +55,13 @@ export class Repository<TModel extends BaseModel> {
 				.skip(skip)
 				.limit(limit);
 
-			const model = await query.exec();
+			const doc = await query.exec();
 
-			return model;
+			return plainToClass(this._modelCtr, doc, {
+				enableCircularCheck: true,
+				excludeExtraneousValues: true,
+				excludePrefixes: ['_'],
+			});
 		} catch (e) {
 			Repository._throwMongoError(e);
 		}
@@ -64,9 +71,13 @@ export class Repository<TModel extends BaseModel> {
 		try {
 			const query = this._findOne(<any>filter);
 
-			const model = await query.exec();
+			const doc = await query.exec();
 
-			return model;
+			return plainToClass(this._modelCtr, doc, {
+				enableCircularCheck: true,
+				excludeExtraneousValues: true,
+				excludePrefixes: ['_'],
+			});
 		} catch (e) {
 			Repository._throwMongoError(e);
 		}
@@ -76,9 +87,13 @@ export class Repository<TModel extends BaseModel> {
 		try {
 			const query = this._findById(id);
 
-			const model = await query.exec();
+			const doc = await query.exec();
 
-			return model;
+			return plainToClass(this._modelCtr, doc, {
+				enableCircularCheck: true,
+				excludeExtraneousValues: true,
+				excludePrefixes: ['_'],
+			});
 		} catch (e) {
 			Repository._throwMongoError(e);
 		}
@@ -86,7 +101,13 @@ export class Repository<TModel extends BaseModel> {
 
 	public async create(item: CreateOneQuery<TModel>): Promise<TModel> {
 		try {
-			return await this._model.create(item);
+			const doc = await this._model.create(item);
+
+			return plainToClass(this._modelCtr, doc, {
+				enableCircularCheck: true,
+				excludeExtraneousValues: true,
+				excludePrefixes: ['_'],
+			});
 		} catch (e) {
 			Repository._throwMongoError(e);
 		}
@@ -105,9 +126,13 @@ export class Repository<TModel extends BaseModel> {
 				})
 				.setOptions(Repository._getQueryOptions(options));
 
-			const model = await query.exec();
+			const doc = await query.exec();
 
-			return model;
+			return plainToClass(this._modelCtr, doc, {
+				enableCircularCheck: true,
+				excludeExtraneousValues: true,
+				excludePrefixes: ['_'],
+			});
 		} catch (e) {
 			Repository._throwMongoError(e);
 		}
@@ -128,9 +153,13 @@ export class Repository<TModel extends BaseModel> {
 			options,
 		);
 
-		const model = await query.exec();
+		const doc = await query.exec();
 
-		return model;
+		return plainToClass(this._modelCtr, doc, {
+			enableCircularCheck: true,
+			excludeExtraneousValues: true,
+			excludePrefixes: ['_'],
+		});
 	}
 
 	public async updateByFilter(
@@ -141,18 +170,26 @@ export class Repository<TModel extends BaseModel> {
 	): Promise<TModel> {
 		const query = this._update(filter, updateQuery as any, updateOptions, options);
 
-		const model = await query.exec();
+		const doc = await query.exec();
 
-		return model;
+		return plainToClass(this._modelCtr, doc, {
+			enableCircularCheck: true,
+			excludeExtraneousValues: true,
+			excludePrefixes: ['_'],
+		});
 	}
 
 	public async deleteById(id: string, options?: IQueryOptions): Promise<TModel> {
 		try {
 			const query = this._delete({ _id: Types.ObjectId(id) as any }, options);
 
-			const model = await query.exec();
+			const doc = await query.exec();
 
-			return model;
+			return plainToClass(this._modelCtr, doc, {
+				enableCircularCheck: true,
+				excludeExtraneousValues: true,
+				excludePrefixes: ['_'],
+			});
 		} catch (e) {
 			Repository._throwMongoError(e);
 		}
@@ -243,5 +280,21 @@ export class Repository<TModel extends BaseModel> {
 		} catch (e) {
 			this._throwMongoError(e);
 		}
+	}
+
+	private _toClassObject(doc: DocumentType<TModel>): TModel {
+		return plainToClass(this._modelCtr, doc, {
+			enableCircularCheck: true,
+			excludeExtraneousValues: true,
+			excludePrefixes: ['_'],
+		});
+	}
+
+	private _toClassArray(docs: DocumentType<TModel>[]): TModel[] {
+		return plainToClass(this._modelCtr, docs, {
+			enableCircularCheck: true,
+			excludeExtraneousValues: true,
+			excludePrefixes: ['_'],
+		});
 	}
 }

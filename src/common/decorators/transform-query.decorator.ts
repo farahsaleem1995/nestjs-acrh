@@ -1,4 +1,4 @@
-import { ArgumentMetadata, BadRequestException, PipeTransform, Query, Type } from '@nestjs/common';
+import { BadRequestException, PipeTransform, Query, Type } from '@nestjs/common';
 import { ClassConstructor, plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import { FindAllQuery } from 'src/data/types';
@@ -10,7 +10,7 @@ export function TransformQuery(
 	class QueryTransformPipe implements PipeTransform {
 		constructor(private cls: ClassConstructor<any>) {}
 
-		async transform(value: any, metadata: ArgumentMetadata): Promise<FindAllQuery<any>> {
+		async transform(value: any): Promise<FindAllQuery<any>> {
 			await this.validate(value, this.cls);
 
 			return value;

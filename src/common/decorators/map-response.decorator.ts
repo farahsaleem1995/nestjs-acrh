@@ -3,12 +3,9 @@ import { applyDecorators, UseInterceptors } from '@nestjs/common';
 import { ClassConstructor } from 'class-transformer';
 import { TransformInterceptor } from '../interceptors';
 
-export function MapResponse(destination: ClassConstructor<any>, sours: ClassConstructor<any>) {
+export function MapResponse(destination: ClassConstructor<any>, source: ClassConstructor<any>) {
 	return applyDecorators(
-		UseInterceptors(
-			MapInterceptor(destination, sours, { isArray: false }),
-			TransformInterceptor(destination),
-		),
+		UseInterceptors(MapInterceptor(destination, source), TransformInterceptor(destination)),
 	);
 }
 

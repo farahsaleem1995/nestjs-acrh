@@ -1,5 +1,6 @@
 import { AutoMap } from '@automapper/classes';
 import { modelOptions, prop, Severity } from '@typegoose/typegoose';
+import { Expose } from 'class-transformer';
 
 @modelOptions({
 	options: { allowMixed: Severity.ALLOW },
@@ -17,14 +18,17 @@ import { modelOptions, prop, Severity } from '@typegoose/typegoose';
 	},
 })
 export abstract class BaseModel {
+	@Expose()
 	@AutoMap()
 	id?: string;
 
 	@prop()
+	@Expose()
 	@AutoMap()
 	createdAt?: Date;
 
 	@prop()
+	@Expose()
 	@AutoMap()
 	updatedAt?: Date;
 }

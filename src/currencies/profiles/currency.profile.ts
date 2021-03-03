@@ -13,6 +13,10 @@ export class CurrencyProfile extends AutomapperProfile {
 	mapProfile() {
 		return (mapper: Mapper) => {
 			mapper.createMap(Currency, CurrencyDto);
+			// .beforeMap((src, dest) => {
+			// 	console.log('src', src);
+			// 	console.log('dest', dest);
+			// });
 		};
 	}
 }

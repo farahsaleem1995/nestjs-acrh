@@ -1,8 +1,9 @@
 import { AutoMap } from '@automapper/classes';
-import { Expose, Type } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 import { CurrencyDto } from 'src/currencies/dtos';
 import { BaseDto } from 'src/common/dtos';
 
+@Exclude()
 export class ConvertRateDto extends BaseDto {
 	@AutoMap(() => CurrencyDto)
 	@Expose()

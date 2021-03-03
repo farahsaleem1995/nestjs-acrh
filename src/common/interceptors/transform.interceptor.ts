@@ -12,7 +12,13 @@ export function TransformInterceptor(destination: ClassConstructor<any>): NestIn
 			context: ExecutionContext,
 			next: CallHandler,
 		): Observable<any> | Promise<Observable<any>> {
-			return next.handle().pipe(map((data) => plainToClass(this.destination, data)));
+			return next.handle().pipe(
+				map((data) =>
+					plainToClass(this.destination, data, {
+						enableCircularCheck: true,
+					}),
+				),
+			);
 		}
 	}
 

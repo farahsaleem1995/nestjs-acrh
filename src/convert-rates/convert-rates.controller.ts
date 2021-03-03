@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { InjectService, MapArrayResponse, MapResponse } from 'src/common/decorators';
+import { Controller, Get, Param, Post } from '@nestjs/common';
+import { InjectService, MapArrayResponse, MapResponse, ValidateBody } from 'src/common/decorators';
 import { Service } from 'src/common/services';
 import { ConvertRateDto } from './dtos';
 import { CreateConvertRateDto } from './dtos/create-convert-rate.dto';
 import { ConvertRate } from './models';
+import { CreateConvertRatePipe } from './pipes';
 
 @Controller('convert-rates')
 export class ConvertRatesController {
@@ -19,8 +20,14 @@ export class ConvertRatesController {
 
 	@Post()
 	@MapResponse(ConvertRateDto, ConvertRate)
-	async create(@Body() createDto: CreateConvertRateDto): Promise<ConvertRate> {
-		return this.convertRatesService.create(createDto);
+	async create(
+		@ValidateBody(CreateConvertRateDto, CreateConvertRatePipe) createDto: CreateConvertRateDto,
+	): Promise<ConvertRate> {
+		const t = await this.convertRatesService.create(createDto);
+
+		// console.log(this.mapper.map(t, ConvertRateDto, ConvertRate));
+
+		return t;
 	}
 
 	@Get(':id')

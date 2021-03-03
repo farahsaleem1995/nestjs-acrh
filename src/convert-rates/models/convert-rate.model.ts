@@ -1,6 +1,6 @@
 import { AutoMap } from '@automapper/classes';
 import { prop, Ref } from '@typegoose/typegoose';
-import { Type } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 import { Currency } from 'src/currencies/models';
 import { ForFeature } from 'src/data/decorators';
 import { BaseModel } from 'src/data/models';
@@ -8,21 +8,24 @@ import { UseMongoosePlugin } from 'src/common/decorators';
 
 @ForFeature()
 @UseMongoosePlugin()
+@Exclude()
 export class ConvertRate extends BaseModel {
 	@prop({
-		ref: Currency,
+		ref: () => Currency,
 		required: true,
 		autopopulate: true,
 	})
+	@Expose()
 	@AutoMap(() => Currency)
 	@Type(() => Currency)
 	fromCurrency: Ref<Currency>;
 
 	@prop({
-		ref: Currency,
+		ref: () => Currency,
 		required: true,
 		autopopulate: true,
 	})
+	@Expose()
 	@AutoMap(() => Currency)
 	@Type(() => Currency)
 	toCurrency: Ref<Currency>;
@@ -30,6 +33,7 @@ export class ConvertRate extends BaseModel {
 	@prop({
 		required: true,
 	})
+	@Expose()
 	@AutoMap()
 	convertRateValue: number;
 }
