@@ -5,8 +5,10 @@ import { Currency } from 'src/currencies/models';
 import { ForFeature } from 'src/data/decorators';
 import { BaseModel } from 'src/data/models';
 import { UseMongoosePlugin } from 'src/common/decorators';
+import { Resource } from 'src/roles/decorators';
 
 @ForFeature()
+@Resource()
 @UseMongoosePlugin()
 @Exclude()
 export class ConvertRate extends BaseModel {
