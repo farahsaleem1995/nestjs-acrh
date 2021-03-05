@@ -1,17 +1,12 @@
-import { BadRequestException, PipeTransform, Query, Type } from '@nestjs/common';
+import { PipeTransform, BadRequestException, mixin } from '@nestjs/common';
 import { ClassConstructor, plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import { FindAllQuery } from 'src/data/types';
 
-export function TransformQuery(
-	queryType: ClassConstructor<any>,
-	...pipes: (PipeTransform<any, any> | Type<PipeTransform<any, any>>)[]
-) {
-	class QueryTransformPipe implements PipeTransform {
-		constructor(private cls: ClassConstructor<any>) {}
-
+export function QueryTransformPipe(queryModelCtr: ClassConstructor<any>) {
+	class QueryTransformPipe implements PipeTransform<any, Promise<FindAllQuery<any>>> {
 		async transform(value: any): Promise<FindAllQuery<any>> {
-			await this.validate(value, this.cls);
+			await this.validate(value, queryModelCtr);
 
 			return value;
 		}
@@ -32,5 +27,5 @@ export function TransformQuery(
 		}
 	}
 
-	return Query(new QueryTransformPipe(queryType), ...pipes);
+	return mixin(QueryTransformPipe);
 }

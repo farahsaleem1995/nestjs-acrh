@@ -1,10 +1,12 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Controller, Get, Post, Put } from '@nestjs/common';
 import {
+	GetById,
 	InjectService,
 	MapArrayResponse,
 	MapResponse,
 	TransformQuery,
 	ValidateBody,
+	ValidateById,
 } from 'src/common/decorators';
 import { CurrencyDto, CreateCurrencyDto, UpdateCurrencyDto, CurrencyQueryDto } from './dtos';
 import { Currency } from './models';
@@ -25,20 +27,20 @@ export class CurrenciesController {
 
 	@Post()
 	@MapResponse(CurrencyDto, Currency)
-	async create(@Body() createDto: CreateCurrencyDto): Promise<Currency> {
+	async create(@ValidateBody(CreateCurrencyDto) createDto: CreateCurrencyDto): Promise<Currency> {
 		return await this.currenciesService.create(createDto);
 	}
 
 	@Get(':id')
 	@MapResponse(CurrencyDto, Currency)
-	async getById(@Param('id') id: string): Promise<Currency> {
-		return await this.currenciesService.getById(id);
+	async getById(@GetById(Currency) currency: Currency): Promise<Currency> {
+		return currency;
 	}
 
 	@Put(':id')
 	@MapResponse(CurrencyDto, Currency)
 	async update(
-		@Param('id') id: string,
+		@ValidateById(Currency) id: string,
 		@ValidateBody(UpdateCurrencyDto) updateDto: UpdateCurrencyDto,
 	): Promise<Currency> {
 		return await this.currenciesService.update(id, updateDto);
