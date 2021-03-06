@@ -55,13 +55,9 @@ export class Repository<TModel extends BaseModel> {
 				.skip(skip)
 				.limit(limit);
 
-			const doc = await query.exec();
+			const docs = await query.exec();
 
-			return plainToClass(this._modelCtr, doc, {
-				enableCircularCheck: true,
-				excludeExtraneousValues: true,
-				excludePrefixes: ['_'],
-			});
+			return this._toClassArray(docs);
 		} catch (e) {
 			Repository._throwMongoError(e);
 		}
@@ -73,11 +69,7 @@ export class Repository<TModel extends BaseModel> {
 
 			const doc = await query.exec();
 
-			return plainToClass(this._modelCtr, doc, {
-				enableCircularCheck: true,
-				excludeExtraneousValues: true,
-				excludePrefixes: ['_'],
-			});
+			return this._toClassObject(doc);
 		} catch (e) {
 			Repository._throwMongoError(e);
 		}
@@ -89,11 +81,7 @@ export class Repository<TModel extends BaseModel> {
 
 			const doc = await query.exec();
 
-			return plainToClass(this._modelCtr, doc, {
-				enableCircularCheck: true,
-				excludeExtraneousValues: true,
-				excludePrefixes: ['_'],
-			});
+			return this._toClassObject(doc);
 		} catch (e) {
 			Repository._throwMongoError(e);
 		}
@@ -103,11 +91,7 @@ export class Repository<TModel extends BaseModel> {
 		try {
 			const doc = await this._model.create(item);
 
-			return plainToClass(this._modelCtr, doc, {
-				enableCircularCheck: true,
-				excludeExtraneousValues: true,
-				excludePrefixes: ['_'],
-			});
+			return this._toClassObject(doc);
 		} catch (e) {
 			Repository._throwMongoError(e);
 		}
@@ -128,11 +112,7 @@ export class Repository<TModel extends BaseModel> {
 
 			const doc = await query.exec();
 
-			return plainToClass(this._modelCtr, doc, {
-				enableCircularCheck: true,
-				excludeExtraneousValues: true,
-				excludePrefixes: ['_'],
-			});
+			return this._toClassObject(doc);
 		} catch (e) {
 			Repository._throwMongoError(e);
 		}
@@ -144,22 +124,16 @@ export class Repository<TModel extends BaseModel> {
 		updateOptions: UpdateOneQueryOptions = {},
 		options?: IQueryOptions,
 	): Promise<TModel> {
-		const { item } = updateQuery;
-
 		const query = this._update(
 			{ _id: Types.ObjectId(id) as any },
-			item as any,
+			updateQuery as any,
 			updateOptions,
 			options,
 		);
 
 		const doc = await query.exec();
 
-		return plainToClass(this._modelCtr, doc, {
-			enableCircularCheck: true,
-			excludeExtraneousValues: true,
-			excludePrefixes: ['_'],
-		});
+		return this._toClassObject(doc);
 	}
 
 	public async updateByFilter(
@@ -172,11 +146,7 @@ export class Repository<TModel extends BaseModel> {
 
 		const doc = await query.exec();
 
-		return plainToClass(this._modelCtr, doc, {
-			enableCircularCheck: true,
-			excludeExtraneousValues: true,
-			excludePrefixes: ['_'],
-		});
+		return this._toClassObject(doc);
 	}
 
 	public async deleteById(id: string, options?: IQueryOptions): Promise<TModel> {
@@ -185,11 +155,7 @@ export class Repository<TModel extends BaseModel> {
 
 			const doc = await query.exec();
 
-			return plainToClass(this._modelCtr, doc, {
-				enableCircularCheck: true,
-				excludeExtraneousValues: true,
-				excludePrefixes: ['_'],
-			});
+			return this._toClassObject(doc);
 		} catch (e) {
 			Repository._throwMongoError(e);
 		}

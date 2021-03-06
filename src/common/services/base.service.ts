@@ -1,4 +1,4 @@
-import { Injectable, Scope } from '@nestjs/common';
+import { Injectable, NotFoundException, Scope } from '@nestjs/common';
 import { BaseModel } from 'src/data/models';
 import { Repository } from 'src/data/repositories';
 import { CreateOneParamDto, FindAllParamDto, UpdateOneParamDto } from '../types';
@@ -32,6 +32,12 @@ export class Service<TModel extends BaseModel> {
 	}
 
 	public async delete(id: string): Promise<TModel> {
-		return this._repository.deleteById(id);
+		const deletedModel = this._repository.deleteById(id);
+
+		if (!deletedModel) {
+			throw new NotFoundException(`Not Found`);
+		}
+
+		return deletedModel;
 	}
 }
