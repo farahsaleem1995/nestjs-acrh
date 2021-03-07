@@ -1,11 +1,11 @@
 import { ClassConstructor } from 'class-transformer';
 import { BaseModel } from 'src/data/models';
-import { ALLOWED_RESOURCES } from '../utils';
+import { ALLOWED_CASL_SUBJECTS } from '../utils';
 
-export function Resource() {
+export function CaslSubject() {
 	return function (ctr: ClassConstructor<BaseModel>) {
 		const modelName = ctr.name;
 
-		ALLOWED_RESOURCES.push(modelName);
+		ALLOWED_CASL_SUBJECTS.push(modelName);
 	};
 }

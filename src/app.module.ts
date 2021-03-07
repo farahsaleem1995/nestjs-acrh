@@ -6,6 +6,7 @@ import { ConvertRatesModule } from './convert-rates/convert-rates.module';
 import { DataModule } from './data/data.module';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { RolesModule } from './roles/roles.module';
+import { PermissionsModule } from './permissions/permissions.module';
 
 @Module({
 	imports: [
@@ -22,6 +23,7 @@ import { RolesModule } from './roles/roles.module';
 		CurrenciesModule,
 		ConvertRatesModule,
 		RolesModule,
+		PermissionsModule,
 	],
 	controllers: [],
 	providers: [],

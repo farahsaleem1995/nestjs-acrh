@@ -5,11 +5,11 @@ import { UseMongoosePlugin } from 'src/common/decorators';
 import { ColumnSizes } from 'src/data/constants';
 import { ForFeature } from 'src/data/decorators';
 import { BaseModel } from 'src/data/models';
-import { Resource } from '../decorators';
-import { RolePrivilege } from './role-privilege.model';
+import { Permission } from 'src/permissions/models';
+import { CaslSubject } from '../decorators';
 
 @ForFeature()
-@Resource()
+@CaslSubject()
 @UseMongoosePlugin()
 @Exclude()
 export class Role extends BaseModel {
@@ -24,13 +24,10 @@ export class Role extends BaseModel {
 
 	@Expose()
 	@prop({
-		_id: false,
 		required: true,
-		minlength: ColumnSizes.Length4,
-		maxlength: ColumnSizes.Length16,
-		ref: () => RolePrivilege,
+		ref: () => Permission,
 		autopopulate: true,
 	})
 	@AutoMap()
-	privilege: RolePrivilege[];
+	permissions: Permission[];
 }

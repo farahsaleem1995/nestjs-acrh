@@ -1,1 +1,1 @@
-export const ALLOWED_RESOURCES = [];
+export const ALLOWED_CASL_SUBJECTS = [];

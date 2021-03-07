@@ -5,11 +5,12 @@ import { ColumnSizes } from 'src/data/constants';
 import { ForFeature } from 'src/data/decorators';
 import { BaseModel } from 'src/data/models';
 import { CaslSubject } from 'src/roles/decorators';
+import { ALLOWED_CASL_SUBJECTS } from 'src/roles/utils';
 
 @ForFeature()
 @CaslSubject()
 @Exclude()
-export class Currency extends BaseModel {
+export class Permission extends BaseModel {
 	@prop({
 		required: true,
 		minlength: ColumnSizes.Length4,
@@ -21,19 +22,21 @@ export class Currency extends BaseModel {
 
 	@prop({
 		required: true,
-		minlength: ColumnSizes.Length2,
-		maxlength: ColumnSizes.Length4,
 	})
 	@Expose()
 	@AutoMap()
-	code: string;
+	subject: string;
 
 	@prop({
 		required: true,
-		minlength: ColumnSizes.Length1,
-		maxlength: ColumnSizes.Length2,
+		validate: (value) => {
+			if (!ALLOWED_CASL_SUBJECTS.includes(value)) {
+				return false;
+			}
+			return true;
+		},
 	})
 	@Expose()
 	@AutoMap()
-	symbol: string;
+	action: string;
 }

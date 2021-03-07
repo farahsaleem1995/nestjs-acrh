@@ -1,3 +1,3 @@
 import { from } from 'rxjs';
 
-export * from './resource.decorator';
+export * from './casl-subject.decorator';
