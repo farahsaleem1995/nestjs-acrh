@@ -4,11 +4,12 @@ import { Exclude, Expose } from 'class-transformer';
 import { ColumnSizes } from 'src/data/constants';
 import { ForFeature } from 'src/data/decorators';
 import { BaseModel } from 'src/data/models';
-import { CaslSubject } from 'src/roles/decorators';
-import { ALLOWED_CASL_SUBJECTS } from 'src/roles/utils';
+import { CaslSubject } from 'src/permissions/decorators';
+import { ALLOWED_CASL_SUBJECTS } from 'src/permissions/utils';
+import { permissionActions } from '../constants';
 
 @ForFeature()
-@CaslSubject()
+@CaslSubject(permissionActions)
 @Exclude()
 export class Permission extends BaseModel {
 	@prop({

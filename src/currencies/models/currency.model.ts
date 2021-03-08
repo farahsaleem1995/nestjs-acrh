@@ -4,10 +4,11 @@ import { Exclude, Expose } from 'class-transformer';
 import { ColumnSizes } from 'src/data/constants';
 import { ForFeature } from 'src/data/decorators';
 import { BaseModel } from 'src/data/models';
-import { CaslSubject } from 'src/roles/decorators';
+import { CaslSubject } from 'src/permissions/decorators';
+import { currencyActions } from '../constants';
 
 @ForFeature()
-@CaslSubject()
+@CaslSubject(currencyActions)
 @Exclude()
 export class Currency extends BaseModel {
 	@prop({

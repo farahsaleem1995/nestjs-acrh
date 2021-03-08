@@ -6,10 +6,11 @@ import { ColumnSizes } from 'src/data/constants';
 import { ForFeature } from 'src/data/decorators';
 import { BaseModel } from 'src/data/models';
 import { Permission } from 'src/permissions/models';
-import { CaslSubject } from '../decorators';
+import { CaslSubject } from '../../permissions/decorators';
+import { roleActions } from '../constants';
 
 @ForFeature()
-@CaslSubject()
+@CaslSubject(roleActions)
 @UseMongoosePlugin()
 @Exclude()
 export class Role extends BaseModel {
