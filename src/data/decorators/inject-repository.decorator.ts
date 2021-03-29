@@ -3,17 +3,14 @@ import { ClassConstructor } from 'class-transformer';
 import { BaseModel } from '../models';
 import { getRepositoryToken } from '../utils';
 
-export const repositoryProviderModels: {
-	modelName: string;
-	modelCtr: ClassConstructor<BaseModel>;
-}[] = [];
+export const repositoryProviderModels: ClassConstructor<BaseModel>[] = [];
 
-export const InjectRepository = (model: ClassConstructor<BaseModel>) => {
+export const InjectRepository = <TModel extends BaseModel>(model: ClassConstructor<TModel>) => {
 	const modelName = model.name;
 
-	if (!repositoryProviderModels.map((model) => model.modelName).includes(modelName)) {
-		repositoryProviderModels.push({ modelName, modelCtr: model });
+	if (!repositoryProviderModels.map((model) => model.name).includes(modelName)) {
+		repositoryProviderModels.push(model);
 	}
 
-	return Inject(getRepositoryToken(modelName));
+	return Inject(getRepositoryToken(model));
 };

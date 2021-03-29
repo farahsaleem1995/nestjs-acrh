@@ -8,31 +8,26 @@ import { BaseModel } from '../models';
 import { Repository } from '../repositories';
 
 function repositoryFactory<TModel extends BaseModel>(
-	repository: Repository<TModel>,
 	model: ModelType<TModel>,
 	modelCtr: ClassConstructor<TModel>,
 ) {
-	repository.setModel(model, modelCtr);
-
-	return repository;
+	return new Repository<TModel>(model, modelCtr);
 }
 
 function createRepositoryProvider<TModel extends BaseModel>(
-	modelName: string,
 	modelCtr: ClassConstructor<TModel>,
 ): Provider<Repository<TModel>> {
 	return {
-		provide: getRepositoryToken(modelName),
-		useFactory: (repository: Repository<TModel>, model: ModelType<TModel>) => {
-			return repositoryFactory<TModel>(repository, model, modelCtr);
+		provide: getRepositoryToken(modelCtr),
+		useFactory: (model: ModelType<TModel>) => {
+			return repositoryFactory<TModel>(model, modelCtr);
 		},
-		inject: [Repository, getModelToken(modelName)],
+		inject: [getModelToken(modelCtr.name)],
 	};
 }
 
 export function createRepositoryProviders(): Provider<Repository<BaseModel>>[] {
 	return repositoryProviderModels.map((model) => {
-		const { modelName, modelCtr } = model;
-		return createRepositoryProvider(modelName, modelCtr);
+		return createRepositoryProvider(model);
 	});
 }

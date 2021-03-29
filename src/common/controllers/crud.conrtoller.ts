@@ -15,7 +15,6 @@ import { ClassConstructor } from 'class-transformer';
 import { BaseModel } from 'src/data/models';
 import { FindAllQuery } from 'src/data/types';
 import {
-	InjectService,
 	MapArrayResponse,
 	MapResponse,
 	TransformQuery,
@@ -23,7 +22,7 @@ import {
 	ValidateById,
 } from '../decorators';
 import { BaseDto } from '../dtos';
-import { Service } from '../services';
+import { ICrudService } from '../interfaces';
 import { CreateOneParamDto, UpdateOneParamDto } from '../types';
 
 export interface ICrudControllerConfig<
@@ -62,26 +61,26 @@ export function CrudController<
 
 	@Controller(prefix)
 	class CrudController {
-		constructor(@InjectService(model) private readonly currenciesService: Service<TModel>) {}
+		constructor(private readonly service: ICrudService<TModel>) {}
 
 		@Get()
 		@MapArrayResponse(dto, model)
 		async getAll(
 			@TransformQuery(findAllDto, ...findAllPipes) query: FindAllQuery<TModel>,
 		): Promise<TModel[]> {
-			return await this.currenciesService.getAll(query);
+			return await this.service.getAll(query);
 		}
 
 		@Post()
 		@MapResponse(dto, model)
 		async create(@ValidateBody(createDto, ...createPipes) createDto: TCreate): Promise<TModel> {
-			return await this.currenciesService.create(createDto);
+			return await this.service.create(createDto);
 		}
 
 		@Get(':id')
 		@MapResponse(dto, model)
 		async getById(@Param('id') id: string): Promise<TModel> {
-			return this.currenciesService.getById(id);
+			return this.service.getById(id);
 		}
 
 		@Put(':id')
@@ -90,13 +89,13 @@ export function CrudController<
 			@ValidateById(model) id: string,
 			@ValidateBody(updateDto, ...updatePipes) updateDto: TUpdate,
 		): Promise<TModel> {
-			return await this.currenciesService.update(id, updateDto);
+			return await this.service.update(id, updateDto);
 		}
 
 		@Delete(':id')
 		@HttpCode(HttpStatus.NOT_FOUND)
 		async delete(@Param('id') id: string): Promise<void> {
-			await this.currenciesService.delete(id);
+			await this.service.delete(id);
 		}
 	}
 

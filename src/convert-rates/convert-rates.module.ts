@@ -1,12 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConvertRateProfile } from './profiles';
 import { ConvertRatesController } from './convert-rates.controller';
-import { CommonModule } from 'src/common/common.module';
-import { ConvertRate } from './models';
+import { ConvertRatesService } from './services';
 
 @Module({
-	imports: [CommonModule.forFeature([ConvertRate])],
-	providers: [ConvertRateProfile],
+	providers: [ConvertRatesService, ConvertRateProfile],
 	controllers: [ConvertRatesController],
 })
 export class ConvertRatesModule {}

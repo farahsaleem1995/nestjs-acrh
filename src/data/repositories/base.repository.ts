@@ -28,19 +28,11 @@ interface IQueryOptions {
 	autopopulate?: boolean;
 }
 
-@Injectable({ scope: Scope.TRANSIENT })
 export class Repository<TModel extends BaseModel> {
-	private _model: ModelType<TModel>;
-	private _modelCtr: ClassConstructor<TModel>;
-
-	public setModel(model: ModelType<TModel>, modelCtr: ClassConstructor<TModel>): void {
-		if (this._model) {
-			throw Error('Model reset is not allowed');
-		}
-
-		this._model = model;
-		this._modelCtr = modelCtr;
-	}
+	constructor(
+		private readonly model: ModelType<TModel>,
+		private readonly modelCtr: ClassConstructor<TModel>,
+	) {}
 
 	public async findAll(query: FindAllQuery<TModel> = {}): Promise<TModel[]> {
 		const { filter, sort, paginate } = query;
@@ -89,7 +81,7 @@ export class Repository<TModel extends BaseModel> {
 
 	public async create(item: CreateOneQuery<TModel>): Promise<TModel> {
 		try {
-			const doc = await this._model.create(item);
+			const doc = await this.model.create(item);
 
 			return this._toClassObject(doc);
 		} catch (e) {
@@ -103,7 +95,7 @@ export class Repository<TModel extends BaseModel> {
 	): Promise<TModel> {
 		try {
 			const { item } = updateQuery;
-			const query = this._model
+			const query = this.model
 				.findByIdAndUpdate(Types.ObjectId(item.id), { $set: updateQuery } as any, {
 					omitUndefined: true,
 					new: true,
@@ -171,22 +163,22 @@ export class Repository<TModel extends BaseModel> {
 
 	public async exists(filter: FindOneQuery<TModel> = {}): Promise<boolean> {
 		try {
-			return await this._model.exists(filter);
+			return await this.model.exists(filter);
 		} catch (e) {
 			Repository._throwMongoError(e);
 		}
 	}
 
 	private _findAll(filter: any = {}, options?: IQueryOptions): QueryList<TModel> {
-		return this._model.find(filter).setOptions(Repository._getQueryOptions(options));
+		return this.model.find(filter).setOptions(Repository._getQueryOptions(options));
 	}
 
 	private _findOne(filter: any = {}, options?: IQueryOptions): QueryItem<TModel> {
-		return this._model.findOne(filter).setOptions(Repository._getQueryOptions(options));
+		return this.model.findOne(filter).setOptions(Repository._getQueryOptions(options));
 	}
 
 	private _findById(id: string, options?: IQueryOptions): QueryItem<TModel> {
-		return this._model
+		return this.model
 			.findById(Repository._toObjectId(id))
 			.setOptions(Repository._getQueryOptions(options));
 	}
@@ -197,7 +189,7 @@ export class Repository<TModel extends BaseModel> {
 		updateOptions: QueryFindOneAndUpdateOptions = {},
 		options?: IQueryOptions,
 	): QueryItem<TModel> {
-		return this._model
+		return this.model
 			.findOneAndUpdate(filter, updateQuery, {
 				...Object.assign({ omitUndefined: true }, updateOptions),
 				new: true,
@@ -209,13 +201,11 @@ export class Repository<TModel extends BaseModel> {
 		filter: FilterQuery<DocumentType<TModel>> = {},
 		options?: IQueryOptions,
 	): QueryItem<TModel> {
-		return this._model
-			.findOneAndDelete(filter)
-			.setOptions(Repository._getQueryOptions(options));
+		return this.model.findOneAndDelete(filter).setOptions(Repository._getQueryOptions(options));
 	}
 
 	private _count(filter: FilterQuery<DocumentType<TModel>> = {}): Query<number> {
-		return this._model.count(filter);
+		return this.model.count(filter);
 	}
 
 	private static get defaultOptions(): IQueryOptions {
@@ -249,7 +239,7 @@ export class Repository<TModel extends BaseModel> {
 	}
 
 	private _toClassObject(doc: DocumentType<TModel>): TModel {
-		return plainToClass(this._modelCtr, doc, {
+		return plainToClass(this.modelCtr, doc, {
 			enableCircularCheck: true,
 			excludeExtraneousValues: true,
 			excludePrefixes: ['_'],
@@ -257,7 +247,7 @@ export class Repository<TModel extends BaseModel> {
 	}
 
 	private _toClassArray(docs: DocumentType<TModel>[]): TModel[] {
-		return plainToClass(this._modelCtr, docs, {
+		return plainToClass(this.modelCtr, docs, {
 			enableCircularCheck: true,
 			excludeExtraneousValues: true,
 			excludePrefixes: ['_'],
